@@ -36,8 +36,10 @@ npm start
 
 ```bash
 # 构建生产版本
-npm run dist
+npm run make
 ```
+
+### out目录免安装版可用, 安装版有问题，暂无mac版
 
 ## 数据导入格式
 
