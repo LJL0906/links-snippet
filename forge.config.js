@@ -71,13 +71,13 @@ module.exports = {
         noMsi: false,
         // 设置注册表相关项
         registry: [
-          // 开机自启动
+          // 开机自启动 - 修改为以静默方式启动
           {
             name: 'startup',
             path: 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run',
             value: {
               name: '无限访问',
-              value: '"$EXEPATH"'
+              value: '"$EXEPATH" --autostart'  // 添加自启动参数
             }
           }
         ],

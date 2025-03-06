@@ -19,13 +19,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   importData: () => ipcRenderer.invoke('file:import-data'),
   readJsonFile: () => ipcRenderer.invoke('file:read-json'),
   
-  // 改进打开外部链接功能 - 修复打不开浏览器问题
+  // 优化打开外部链接功能
   openExternal: (url) => {
+    if (url === 'about:blank') {
+      // 特殊处理空白页面
+      return ipcRenderer.invoke('open-external-url', url);
+    }
+    
     console.log('正在打开链接:', url);
     try {
-      // 使用更可靠的方式来打开链接
-      const promise = shell.openExternal(url);
-      return promise;
+      return shell.openExternal(url);
     } catch (error) {
       console.error('打开链接错误:', error);
       return Promise.reject(error);

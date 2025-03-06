@@ -28,10 +28,12 @@ function handleSquirrelEvent() {
       // 创建桌面和开始菜单快捷方式
       spawn(updateExe, ['--createShortcut', exeName]);
       
-      // 设置开机自启动
+      // 设置开机自启动时隐藏窗口
       app.setLoginItemSettings({
         openAtLogin: true,
-        path: process.execPath
+        path: process.execPath,
+        args: ['--autostart'],  // 添加自启动参数
+        openAsHidden: true      // macOS专用，以隐藏方式启动
       });
       
       setTimeout(app.quit, 1000);

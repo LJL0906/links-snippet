@@ -14,6 +14,8 @@ if (handleSquirrelEvent()) {
 let mainWindow = null;
 let tray = null;
 let isQuitting = false;
+// 添加标志判断是否是自启动
+let isAutoLaunch = false;
 
 // 确保数据目录存在
 const userDataPath = app.getPath('userData');
@@ -142,6 +144,34 @@ function setupIPC() {
     } else {
       mainWindow.show();
       mainWindow.focus();
+    }
+  });
+
+  // 改进处理打开外部链接的IPC处理
+  ipcMain.handle('open-external-url', async (event, url) => {
+    try {
+      // 处理特殊的 about:blank 情况
+      if (url === 'about:blank') {
+        // 根据不同平台打开默认浏览器
+        if (process.platform === 'win32') {
+          await shell.openExternal('https://www.google.com/');
+          return true;
+        } else if (process.platform === 'darwin') {
+          await shell.openExternal('https://www.google.com/');
+          return true;
+        } else {
+          // Linux等其他平台
+          await shell.openExternal('https://www.google.com/');
+          return true;
+        }
+      }
+      
+      // 正常打开URL
+      await shell.openExternal(url);
+      return true;
+    } catch (err) {
+      console.error('打开外部链接失败:', err);
+      return false;
     }
   });
 }
@@ -335,6 +365,31 @@ function registerShortcuts() {
   });
 }
 
+// 检查应用是否是通过自启动方式启动的
+function checkAutoLaunch() {
+  // Windows平台下检查启动参数
+  if (process.platform === 'win32') {
+    // 检查命令行参数
+    const args = process.argv || [];
+    isAutoLaunch = args.some(arg => 
+      arg.includes('--autostart') ||   // 一些自启动管理器使用此参数
+      arg.includes('Windows\\Start Menu') || // 开始菜单启动
+      arg.includes('StartupApproved') ||  // Windows自启动相关
+      arg.includes('startup') ||    // 通用自启动文件夹
+      arg.includes('\\Microsoft\\Windows\\Start Menu\\Programs\\Startup')  // 精确的启动路径匹配
+    );
+  }
+  
+  // macOS平台
+  if (process.platform === 'darwin') {
+    // macOS LaunchAgent 启动
+    isAutoLaunch = app.getLoginItemSettings().wasOpenedAsHidden;
+  }
+  
+  console.log('应用自启动检查:', isAutoLaunch ? '是自启动' : '非自启动');
+  return isAutoLaunch;
+}
+
 const createWindow = () => {
   try {
     mainWindow = new BrowserWindow({
@@ -351,6 +406,8 @@ const createWindow = () => {
         webSecurity: true,
         allowRunningInsecureContent: false,
       },
+      // 添加初始显示状态设置
+      show: !isAutoLaunch, // 如果是自启动，则初始不显示窗口
     });
     
     mainWindow.loadFile('index.html');
@@ -411,6 +468,9 @@ const createWindow = () => {
 };
 
 app.whenReady().then(() => {
+  // 在应用准备好时检查是否是自启动
+  checkAutoLaunch();
+  
   initDatabase();
   setupIPC();
   createAppMenu();
@@ -422,6 +482,8 @@ app.whenReady().then(() => {
   app.setLoginItemSettings({
     openAtLogin: true,
     path: process.execPath,
+    // 下面这个设置仅对macOS有效，用于标记应用以隐藏方式启动
+    openAsHidden: true
   });
 
   app.on('activate', () => {

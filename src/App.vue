@@ -5,6 +5,21 @@
       <div class="title-left">
         <span class="app-icon">∞</span>
         <span class="title-text">无限访问</span>
+        <!-- 添加空白浏览器按钮 -->
+        <el-button
+          class="blank-browser-btn"
+          type="text"
+          size="small"
+          @click="openBlankBrowser"
+        >
+          <el-tooltip
+            content="打开空白浏览器"
+            placement="bottom"
+            effect="light"
+          >
+            <el-icon><Monitor /></el-icon>
+          </el-tooltip>
+        </el-button>
       </div>
       <div class="window-controls">
         <button class="window-control minimize-btn" @click="minimizeWindow">
@@ -15,13 +30,17 @@
         </button>
       </div>
     </div>
-    
+
     <el-config-provider>
       <div class="app-header">
         <h1 class="app-title">无限访问</h1>
         <div class="header-actions">
           <!-- 优化美化数据管理按钮 -->
-          <el-dropdown trigger="click" @command="handleDataAction" class="data-actions">
+          <el-dropdown
+            trigger="click"
+            @command="handleDataAction"
+            class="data-actions"
+          >
             <el-button class="data-btn" type="primary" plain round>
               <el-icon><Files /></el-icon>
               <span class="btn-text">数据管理</span>
@@ -39,9 +58,9 @@
                   <div class="dropdown-item-with-tip">
                     <el-icon><Document /></el-icon>
                     <span>批量导入</span>
-                    <el-tooltip 
-                      content="请使用正确的JSON格式: [{title:'标题',url:'链接',category:'分类'}, ...]" 
-                      placement="top" 
+                    <el-tooltip
+                      content="请使用正确的JSON格式: [{title:'标题',url:'链接',category:'分类'}, ...]"
+                      placement="top"
                       effect="light"
                     >
                       <el-icon class="info-icon"><question-filled /></el-icon>
@@ -51,8 +70,13 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          
-          <el-button type="primary" round @click="showAddLinkDialog" class="add-btn">
+
+          <el-button
+            type="primary"
+            round
+            @click="showAddLinkDialog"
+            class="add-btn"
+          >
             <el-icon><Plus /></el-icon> 添加链接
           </el-button>
         </div>
@@ -66,7 +90,12 @@
           clearable
           class="search-input"
         />
-        <el-select v-model="filterCategory" placeholder="筛选分类" clearable class="filter-select">
+        <el-select
+          v-model="filterCategory"
+          placeholder="筛选分类"
+          clearable
+          class="filter-select"
+        >
           <el-option
             v-for="item in categories"
             :key="item"
@@ -75,27 +104,33 @@
           />
         </el-select>
       </div>
-      
-      <!-- 分类导航 - 添加全部选项 -->
+
+      <!-- 分类导航 - 添加全部选项和百度链接 -->
       <div class="category-nav" v-if="!filterCategory && !searchQuery">
         <div class="category-tabs">
-          <!-- 添加全部选项 -->
-          <button 
-            class="category-tab all-tab" 
+          <!-- 全部选项 -->
+          <button
+            class="category-tab all-tab"
             :class="{ active: activeCategory === 'all' }"
             @click="activeCategory = 'all'"
           >
             全部
             <span class="category-count">{{ links.length }}</span>
           </button>
-          
-          <button 
-            v-for="(group, category) in groupedLinks" 
+
+          <!-- 添加固定的百度链接 -->
+          <button class="category-tab baidu-tab" @click="openBaiduSearch">
+            百度
+            <el-icon class="baidu-icon"><Search /></el-icon>
+          </button>
+
+          <button
+            v-for="(group, category) in groupedLinks"
             :key="category"
             :class="['category-tab', { active: activeCategory === category }]"
             @click="activeCategory = category"
           >
-            {{ category || '未分类' }}
+            {{ category || "未分类" }}
             <span class="category-count">{{ group.length }}</span>
           </button>
         </div>
@@ -105,11 +140,13 @@
       <template v-if="!filterCategory && !searchQuery">
         <!-- 全部链接视图 -->
         <div v-if="activeCategory === 'all'" class="category-group">
-          <h2 class="category-title">全部链接 <span class="category-count">{{ links.length }}</span></h2>
-          
+          <h2 class="category-title">
+            全部链接 <span class="category-count">{{ links.length }}</span>
+          </h2>
+
           <div class="card-container">
             <el-tooltip
-              v-for="link in links" 
+              v-for="link in links"
               :key="link.id"
               :content="link.url"
               placement="bottom"
@@ -119,26 +156,58 @@
             >
               <div class="capsule-card" @click="handleOpenLink(link.url)">
                 <div class="site-icon">
-                  <img :src="getFaviconUrl(link.url)" alt="图标" class="favicon" @error="handleImageError($event, link.url)" />
+                  <img
+                    :src="getFaviconUrl(link.url)"
+                    alt="图标"
+                    class="favicon"
+                    @error="handleImageError($event, link.url)"
+                  />
                 </div>
-                
+
                 <div class="card-content">
                   <div class="card-title">{{ link.title }}</div>
                 </div>
-                
+
                 <div class="card-actions" @click.stop>
-                  <el-tooltip content="复制链接" placement="bottom" effect="light">
-                    <el-button circle size="small" @click="copyToClipboard(link.url)" class="action-btn copy-btn">
+                  <el-tooltip
+                    content="复制链接"
+                    placement="bottom"
+                    effect="light"
+                  >
+                    <el-button
+                      circle
+                      size="small"
+                      @click="copyToClipboard(link.url)"
+                      class="action-btn copy-btn"
+                    >
                       <el-icon><CopyDocument /></el-icon>
                     </el-button>
                   </el-tooltip>
-                  <el-tooltip content="编辑链接" placement="bottom" effect="light">
-                    <el-button circle size="small" @click.stop="editLink(link)" class="action-btn edit-btn">
+                  <el-tooltip
+                    content="编辑链接"
+                    placement="bottom"
+                    effect="light"
+                  >
+                    <el-button
+                      circle
+                      size="small"
+                      @click.stop="editLink(link)"
+                      class="action-btn edit-btn"
+                    >
                       <el-icon><Edit /></el-icon>
                     </el-button>
                   </el-tooltip>
-                  <el-tooltip content="删除链接" placement="bottom" effect="light">
-                    <el-button circle size="small" @click.stop="deleteLink(link.id)" class="action-btn delete-btn">
+                  <el-tooltip
+                    content="删除链接"
+                    placement="bottom"
+                    effect="light"
+                  >
+                    <el-button
+                      circle
+                      size="small"
+                      @click.stop="deleteLink(link.id)"
+                      class="action-btn delete-btn"
+                    >
                       <el-icon><Delete /></el-icon>
                     </el-button>
                   </el-tooltip>
@@ -147,17 +216,19 @@
             </el-tooltip>
           </div>
         </div>
-        
+
         <!-- 分类链接视图 -->
-        <div 
-          v-for="(group, category) in groupedLinks" 
-          :key="category" 
-          v-show="activeCategory === category" 
+        <div
+          v-for="(group, category) in groupedLinks"
+          :key="category"
+          v-show="activeCategory === category"
           class="category-group"
         >
-          <h2 class="category-title">{{ category || '未分类' }} <span class="category-count">{{ group.length }}</span>
+          <h2 class="category-title">
+            {{ category || "未分类" }}
+            <span class="category-count">{{ group.length }}</span>
           </h2>
-          
+
           <div class="card-container">
             <el-tooltip
               v-for="link in group"
@@ -171,26 +242,58 @@
               <!-- 修改：将点击事件移动到整个卡片 -->
               <div class="capsule-card" @click="handleOpenLink(link.url)">
                 <div class="site-icon">
-                  <img :src="getFaviconUrl(link.url)" alt="图标" class="favicon" @error="handleImageError($event, link.url)" />
+                  <img
+                    :src="getFaviconUrl(link.url)"
+                    alt="图标"
+                    class="favicon"
+                    @error="handleImageError($event, link.url)"
+                  />
                 </div>
-                
+
                 <div class="card-content">
                   <div class="card-title">{{ link.title }}</div>
                 </div>
-                
+
                 <div class="card-actions" @click.stop>
-                  <el-tooltip content="复制链接" placement="bottom" effect="light">
-                    <el-button circle size="small" @click="copyToClipboard(link.url)" class="action-btn copy-btn">
+                  <el-tooltip
+                    content="复制链接"
+                    placement="bottom"
+                    effect="light"
+                  >
+                    <el-button
+                      circle
+                      size="small"
+                      @click="copyToClipboard(link.url)"
+                      class="action-btn copy-btn"
+                    >
                       <el-icon><CopyDocument /></el-icon>
                     </el-button>
                   </el-tooltip>
-                  <el-tooltip content="编辑链接" placement="bottom" effect="light">
-                    <el-button circle size="small" @click.stop="editLink(link)" class="action-btn edit-btn">
+                  <el-tooltip
+                    content="编辑链接"
+                    placement="bottom"
+                    effect="light"
+                  >
+                    <el-button
+                      circle
+                      size="small"
+                      @click.stop="editLink(link)"
+                      class="action-btn edit-btn"
+                    >
                       <el-icon><Edit /></el-icon>
                     </el-button>
                   </el-tooltip>
-                  <el-tooltip content="删除链接" placement="bottom" effect="light">
-                    <el-button circle size="small" @click.stop="deleteLink(link.id)" class="action-btn delete-btn">
+                  <el-tooltip
+                    content="删除链接"
+                    placement="bottom"
+                    effect="light"
+                  >
+                    <el-button
+                      circle
+                      size="small"
+                      @click.stop="deleteLink(link.id)"
+                      class="action-btn delete-btn"
+                    >
                       <el-icon><Delete /></el-icon>
                     </el-button>
                   </el-tooltip>
@@ -215,44 +318,64 @@
           <!-- 修改：将点击事件移动到整个卡片 -->
           <div class="capsule-card" @click="handleOpenLink(link.url)">
             <div class="site-icon">
-              <img :src="getFaviconUrl(link.url)" alt="图标" class="favicon" @error="handleImageError($event, link.url)" />
+              <img
+                :src="getFaviconUrl(link.url)"
+                alt="图标"
+                class="favicon"
+                @error="handleImageError($event, link.url)"
+              />
             </div>
-            
+
             <div class="card-content">
               <div class="card-title">{{ link.title }}</div>
-              <div class="card-category">{{ link.category || '未分类' }}</div>
+              <div class="card-category">{{ link.category || "未分类" }}</div>
             </div>
-            
+
             <div class="card-actions" @click.stop>
               <el-tooltip content="复制链接" placement="bottom" effect="light">
-                <el-button circle size="small" @click="copyToClipboard(link.url)" class="action-btn copy-btn">
+                <el-button
+                  circle
+                  size="small"
+                  @click="copyToClipboard(link.url)"
+                  class="action-btn copy-btn"
+                >
                   <el-icon><CopyDocument /></el-icon>
                 </el-button>
               </el-tooltip>
               <el-tooltip content="编辑链接" placement="bottom" effect="light">
-                <el-button circle size="small" @click.stop="editLink(link)" class="action-btn edit-btn">
+                <el-button
+                  circle
+                  size="small"
+                  @click.stop="editLink(link)"
+                  class="action-btn edit-btn"
+                >
                   <el-icon><Edit /></el-icon>
                 </el-button>
               </el-tooltip>
               <el-tooltip content="删除链接" placement="bottom" effect="light">
-                <el-button circle size="small" @click.stop="deleteLink(link.id)" class="action-btn delete-btn">
+                <el-button
+                  circle
+                  size="small"
+                  @click.stop="deleteLink(link.id)"
+                  class="action-btn delete-btn"
+                >
                   <el-icon><Delete /></el-icon>
                 </el-button>
               </el-tooltip>
             </div>
           </div>
         </el-tooltip>
-        
+
         <div v-if="filteredLinks.length === 0" class="empty-state">
           <el-empty description="没有找到链接" />
         </div>
       </div>
-      
+
       <!-- 优化添加链接对话框 -->
-      <el-dialog 
-        v-model="dialogVisible" 
-        :title="isEditing ? '编辑链接' : '添加链接'" 
-        width="480px" 
+      <el-dialog
+        v-model="dialogVisible"
+        :title="isEditing ? '编辑链接' : '添加链接'"
+        width="480px"
         class="custom-dialog"
         :close-icon="Close"
       >
@@ -268,83 +391,90 @@
             </div>
           </div>
 
-          <el-form :model="newLink" label-position="top" class="custom-form compact-form">
+          <el-form
+            :model="newLink"
+            label-position="top"
+            class="custom-form compact-form"
+          >
             <el-form-item label="链接标题">
-              <el-input 
-                v-model="newLink.title" 
-                placeholder="输入链接标题" 
+              <el-input
+                v-model="newLink.title"
+                placeholder="输入链接标题"
                 class="rounded-input"
-                prefix-icon="Document"
               />
             </el-form-item>
-            
+
             <el-form-item label="链接地址">
-              <el-input 
-                v-model="newLink.url" 
-                placeholder="https://example.com" 
+              <el-input
+                v-model="newLink.url"
+                placeholder="https://example.com"
                 class="rounded-input"
-                prefix-icon="Link"
               />
               <div class="form-tip">将自动添加 https:// 前缀</div>
             </el-form-item>
-            
-            <div class="form-row">
-              <el-form-item label="分类" class="category-item">
-                <el-select
-                  v-model="newLink.category"
-                  placeholder="选择或创建分类"
-                  filterable
-                  allow-create
-                  default-first-option
-                  class="full-width rounded-input"
-                >
-                  <el-option
-                    v-for="item in categories"
-                    :key="item"
-                    :label="item"
-                    :value="item"
-                  />
-                </el-select>
-              </el-form-item>
-              
-              <el-form-item label="图标预览" v-if="newLink.url" class="preview-item">
-                <div class="icon-preview-compact">
-                  <img :src="getFaviconUrl(newLink.url)" @error="handleImageError($event, newLink.url)" alt="图标预览" class="preview-favicon" />
-                  <span class="preview-domain">{{ getDomainFromUrl(newLink.url) }}</span>
-                </div>
-              </el-form-item>
-            </div>
+
+            <!-- 将分类和图标预览分成两行 - 移除form-row -->
+            <el-form-item label="分类">
+              <el-select
+                v-model="newLink.category"
+                placeholder="选择或创建分类"
+                filterable
+                allow-create
+                default-first-option
+                class="full-width rounded-input"
+              >
+                <el-option
+                  v-for="item in categories"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </el-form-item>
+
+            <!-- 图标预览独立成行 -->
+            <el-form-item label="图标预览" v-if="newLink.url">
+              <div class="icon-preview">
+                <img
+                  :src="getFaviconUrl(newLink.url)"
+                  @error="handleImageError($event, newLink.url)"
+                  alt="图标预览"
+                  class="preview-favicon"
+                />
+                <span class="preview-domain">{{
+                  getDomainFromUrl(newLink.url)
+                }}</span>
+              </div>
+            </el-form-item>
           </el-form>
         </div>
-        
+
         <template #footer>
           <div class="dialog-footer">
-            <el-button @click="dialogVisible = false" round class="cancel-btn">取消</el-button>
+            <el-button @click="dialogVisible = false" round class="cancel-btn"
+              >取消</el-button
+            >
             <el-button type="primary" @click="saveLink" round class="save-btn">
-              {{ isEditing ? '保存更改' : '添加' }}
+              {{ isEditing ? "保存更改" : "添加" }}
             </el-button>
           </div>
         </template>
       </el-dialog>
 
       <!-- 导入确认对话框 -->
-      <el-dialog 
-        v-model="importDialogVisible" 
-        title="导入数据" 
-        width="480px" 
+      <el-dialog
+        v-model="importDialogVisible"
+        title="导入数据"
+        width="480px"
         class="custom-dialog"
       >
         <div class="import-content">
           <div class="alert-box">
-            <el-alert 
-              type="warning" 
-              :closable="false" 
-              show-icon
-            >
+            <el-alert type="warning" :closable="false" show-icon>
               <p>注意: 导入操作将替换当前所有数据，请确认！</p>
             </el-alert>
           </div>
-          
+
           <div class="import-summary">
             <p><strong>链接数量:</strong> {{ importData.length || 0 }}</p>
             <p><strong>分类数量:</strong> {{ importCategories.length || 0 }}</p>
@@ -352,25 +482,32 @@
         </div>
         <template #footer>
           <div class="dialog-footer">
-            <el-button @click="importDialogVisible = false" round>取消</el-button>
-            <el-button type="primary" @click="confirmImport" round :loading="importing">
+            <el-button @click="importDialogVisible = false" round
+              >取消</el-button
+            >
+            <el-button
+              type="primary"
+              @click="confirmImport"
+              round
+              :loading="importing"
+            >
               确认导入
             </el-button>
           </div>
         </template>
       </el-dialog>
-      
+
       <!-- 批量导入对话框 -->
-      <el-dialog 
-        v-model="bulkImportDialogVisible" 
-        title="批量导入链接" 
-        width="520px" 
+      <el-dialog
+        v-model="bulkImportDialogVisible"
+        title="批量导入链接"
+        width="520px"
         class="custom-dialog"
       >
         <div class="bulk-import-content">
           <div class="format-example">
             <p class="format-title">
-              <el-icon style="margin-right: 6px;"><info-filled /></el-icon>
+              <el-icon style="margin-right: 6px"><info-filled /></el-icon>
               请使用正确的JSON格式
             </p>
             <div class="code-block">
@@ -388,26 +525,31 @@
 ]</code></pre>
             </div>
           </div>
-          
+
           <div class="info-block" v-if="bulkData.length > 0">
             <p><b>已选择:</b> {{ bulkData.length }} 条链接</p>
-            <p><b>有效数据:</b> {{ validBulkData.length }} 条 | <b>重复数据:</b> {{ bulkData.length - validBulkData.length }} 条</p>
+            <p>
+              <b>有效数据:</b> {{ validBulkData.length }} 条 | <b>重复数据:</b>
+              {{ bulkData.length - validBulkData.length }} 条
+            </p>
           </div>
-          
+
           <div class="file-select-block">
             <el-button round type="primary" @click="selectBulkJsonFile">
               <el-icon><folder-opened /></el-icon> 选择JSON文件
             </el-button>
           </div>
         </div>
-        
+
         <template #footer>
           <div class="dialog-footer">
-            <el-button @click="bulkImportDialogVisible = false" round>取消</el-button>
-            <el-button 
-              type="primary" 
-              @click="confirmBulkImport" 
-              round 
+            <el-button @click="bulkImportDialogVisible = false" round
+              >取消</el-button
+            >
+            <el-button
+              type="primary"
+              @click="confirmBulkImport"
+              round
               :loading="bulkImporting"
               :disabled="validBulkData.length === 0"
             >
@@ -421,8 +563,26 @@
 </template>
 
 <script>
-import { Plus, Edit, Delete, Search, CopyDocument, Success, Document, Link, Close, Download, Upload, Files, ArrowDown, QuestionFilled, InfoFilled, FolderOpened } from '@element-plus/icons-vue';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import {
+  Plus,
+  Edit,
+  Delete,
+  Search,
+  CopyDocument,
+  Success,
+  Document,
+  Link,
+  Close,
+  Download,
+  Upload,
+  Files,
+  ArrowDown,
+  QuestionFilled,
+  InfoFilled,
+  FolderOpened,
+  Monitor,
+} from "@element-plus/icons-vue";
+import { ElMessageBox, ElMessage } from "element-plus";
 
 export default {
   components: {
@@ -441,7 +601,8 @@ export default {
     ArrowDown,
     QuestionFilled,
     InfoFilled,
-    FolderOpened
+    FolderOpened,
+    Monitor, // 添加新的图标组件
   },
   data() {
     return {
@@ -449,61 +610,62 @@ export default {
       dialogVisible: false,
       newLink: {
         id: null,
-        title: '',
-        url: '',
-        category: ''
+        title: "",
+        url: "",
+        category: "",
       },
       isEditing: false,
-      searchQuery: '',
-      filterCategory: '',
+      searchQuery: "",
+      filterCategory: "",
       categories: [],
       faviconCache: {},
-      activeCategory: 'all', // 默认选中"全部"
+      activeCategory: "all", // 默认选中"全部"
       // 导入导出相关
       importDialogVisible: false,
       importData: [],
       importing: false,
-      
+
       // 批量导入相关
       bulkImportDialogVisible: false,
       bulkData: [],
       bulkImporting: false,
-      previousActiveCategory: 'all' // 存储上一次选中的分类
-    }
+      previousActiveCategory: "all", // 存储上一次选中的分类
+    };
   },
   computed: {
     filteredLinks() {
       let result = this.links;
-      
+
       // 搜索过滤
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
-        result = result.filter(link => 
-          link.title.toLowerCase().includes(query) || 
-          link.url.toLowerCase().includes(query) || 
-          (link.category && link.category.toLowerCase().includes(query))
+        result = result.filter(
+          (link) =>
+            link.title.toLowerCase().includes(query) ||
+            link.url.toLowerCase().includes(query) ||
+            (link.category && link.category.toLowerCase().includes(query))
         );
       }
-      
+
       // 分类过滤
       if (this.filterCategory) {
-        result = result.filter(link => link.category === this.filterCategory);
+        result = result.filter((link) => link.category === this.filterCategory);
       }
-      
+
       return result;
     },
     // 按分类分组链接
     groupedLinks() {
       const groups = {};
-      
-      this.links.forEach(link => {
-        const category = link.category || '未分类';
+
+      this.links.forEach((link) => {
+        const category = link.category || "未分类";
         if (!groups[category]) {
           groups[category] = [];
         }
         groups[category].push(link);
       });
-      
+
       return groups;
     },
     // 导入分类
@@ -511,46 +673,58 @@ export default {
       if (!this.importData || this.importData.length === 0) {
         return [];
       }
-      
+
       const categories = new Set();
-      this.importData.forEach(link => {
+      this.importData.forEach((link) => {
         if (link.category) {
           categories.add(link.category);
         }
       });
-      
+
       return Array.from(categories);
     },
-    
+
     // 有效的批量导入数据（去重后）
     validBulkData() {
       if (!this.bulkData || this.bulkData.length === 0) {
         return [];
       }
-      
+
       // 首先过滤出有效数据（有title和url的数据）
-      const validData = this.bulkData.filter(item => 
-        item && item.title && item.url && 
-        typeof item.title === 'string' && 
-        typeof item.url === 'string'
+      const validData = this.bulkData.filter(
+        (item) =>
+          item &&
+          item.title &&
+          item.url &&
+          typeof item.title === "string" &&
+          typeof item.url === "string"
       );
-      
+
       // 合并现有链接检查重复
-      const existingUrls = new Set(this.links.map(link => this.normalizeUrl(link.url)));
-      const existingTitlesWithCategories = new Set(
-        this.links.map(link => `${link.title.toLowerCase()}|${(link.category || '').toLowerCase()}`)
+      const existingUrls = new Set(
+        this.links.map((link) => this.normalizeUrl(link.url))
       );
-      
+      const existingTitlesWithCategories = new Set(
+        this.links.map(
+          (link) =>
+            `${link.title.toLowerCase()}|${(link.category || "").toLowerCase()}`
+        )
+      );
+
       // 去重
-      return validData.filter(item => {
+      return validData.filter((item) => {
         const normalizedUrl = this.normalizeUrl(item.url);
-        const titleCategoryKey = `${item.title.toLowerCase()}|${(item.category || '').toLowerCase()}`;
-        
+        const titleCategoryKey = `${item.title.toLowerCase()}|${(
+          item.category || ""
+        ).toLowerCase()}`;
+
         // 如果URL或者标题+分类组合已存在，则认为是重复的
-        return !existingUrls.has(normalizedUrl) && 
-               !existingTitlesWithCategories.has(titleCategoryKey);
+        return (
+          !existingUrls.has(normalizedUrl) &&
+          !existingTitlesWithCategories.has(titleCategoryKey)
+        );
       });
-    }
+    },
   },
   watch: {
     // 监听分组数据变化，设置活动分类
@@ -558,34 +732,39 @@ export default {
       immediate: true,
       handler(newGroups) {
         // 只有在初始化或当前激活分类不在新分组中时才改变激活分类
-        if (!this.activeCategory || 
-            (this.activeCategory !== 'all' && !newGroups[this.activeCategory])) {
+        if (
+          !this.activeCategory ||
+          (this.activeCategory !== "all" && !newGroups[this.activeCategory])
+        ) {
           // 尝试恢复之前的分类，如果不存在则使用第一个或默认为'all'
-          if (this.previousActiveCategory && 
-              (this.previousActiveCategory === 'all' || newGroups[this.previousActiveCategory])) {
+          if (
+            this.previousActiveCategory &&
+            (this.previousActiveCategory === "all" ||
+              newGroups[this.previousActiveCategory])
+          ) {
             this.activeCategory = this.previousActiveCategory;
           } else {
             const categories = Object.keys(newGroups);
-            this.activeCategory = categories.length > 0 ? 'all' : 'all';
+            this.activeCategory = categories.length > 0 ? "all" : "all";
           }
         }
-      }
-    }
+      },
+    },
   },
   mounted() {
     this.loadLinks();
     // 修改页面标题
     document.title = "无限访问";
-    
+
     // 添加菜单处理器
     window.electronAPI.onMenuExport(() => {
       this.exportData();
     });
-    
+
     window.electronAPI.onMenuImport(() => {
       this.importDataAction();
     });
-    
+
     // 添加来自托盘菜单的"添加链接"处理
     window.electronAPI.onMenuAddLink(() => {
       this.showAddLinkDialog();
@@ -595,26 +774,26 @@ export default {
     async loadLinks() {
       try {
         this.links = await window.electronAPI.queryDatabase(
-          'SELECT * FROM links ORDER BY created_at DESC', 
+          "SELECT * FROM links ORDER BY created_at DESC",
           []
         );
         // 提取所有不同的分类
         this.extractCategories();
       } catch (error) {
-        console.error('加载链接失败:', error);
-        ElMessage.error('加载链接失败');
+        console.error("加载链接失败:", error);
+        ElMessage.error("加载链接失败");
       }
     },
     extractCategories() {
       const categoriesSet = new Set();
-      this.links.forEach(link => {
+      this.links.forEach((link) => {
         if (link.category) categoriesSet.add(link.category);
       });
       this.categories = Array.from(categoriesSet);
     },
     showAddLinkDialog() {
       this.isEditing = false;
-      this.newLink = { id: null, title: '', url: '', category: '' };
+      this.newLink = { id: null, title: "", url: "", category: "" };
       this.dialogVisible = true;
     },
     editLink(link) {
@@ -624,108 +803,118 @@ export default {
     },
     async saveLink() {
       if (!this.newLink.title || !this.newLink.url) {
-        ElMessage.warning('标题和链接地址不能为空');
+        ElMessage.warning("标题和链接地址不能为空");
         return;
       }
-      
+
       // 保存当前选中的分类
       this.previousActiveCategory = this.activeCategory;
-      
+
       // 自动添加协议头
       if (!this.newLink.url.match(/^https?:\/\//i)) {
-        this.newLink.url = 'https://' + this.newLink.url;
+        this.newLink.url = "https://" + this.newLink.url;
       }
-      
+
       try {
         if (this.isEditing) {
           // 更新现有链接
           await window.electronAPI.executeDatabase(
-            'UPDATE links SET title = ?, url = ?, category = ? WHERE id = ?',
-            [this.newLink.title, this.newLink.url, this.newLink.category, this.newLink.id]
+            "UPDATE links SET title = ?, url = ?, category = ? WHERE id = ?",
+            [
+              this.newLink.title,
+              this.newLink.url,
+              this.newLink.category,
+              this.newLink.id,
+            ]
           );
-          ElMessage.success('更新成功');
+          ElMessage.success("更新成功");
         } else {
           // 添加新链接
           await window.electronAPI.executeDatabase(
-            'INSERT INTO links (title, url, category) VALUES (?, ?, ?)',
+            "INSERT INTO links (title, url, category) VALUES (?, ?, ?)",
             [this.newLink.title, this.newLink.url, this.newLink.category]
           );
-          ElMessage.success('添加成功');
+          ElMessage.success("添加成功");
         }
         this.dialogVisible = false;
         this.loadLinks();
       } catch (error) {
-        console.error('保存链接失败:', error);
-        ElMessage.error('保存链接失败');
+        console.error("保存链接失败:", error);
+        ElMessage.error("保存链接失败");
       }
     },
     async deleteLink(id) {
       try {
-        await ElMessageBox.confirm('确定删除此链接?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
+        await ElMessageBox.confirm("确定删除此链接?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
         });
-        
-        await window.electronAPI.executeDatabase('DELETE FROM links WHERE id = ?', [id]);
-        ElMessage.success('删除成功');
+
+        await window.electronAPI.executeDatabase(
+          "DELETE FROM links WHERE id = ?",
+          [id]
+        );
+        ElMessage.success("删除成功");
         this.loadLinks();
       } catch (error) {
-        if (error !== 'cancel') {
-          console.error('删除链接失败:', error);
-          ElMessage.error('删除链接失败');
+        if (error !== "cancel") {
+          console.error("删除链接失败:", error);
+          ElMessage.error("删除链接失败");
         }
       }
     },
     openLink(url) {
       if (!url) {
-        ElMessage.error('链接地址无效');
+        ElMessage.error("链接地址无效");
         return;
       }
 
       // 确保有协议头
       const formattedUrl = url.match(/^https?:\/\//i) ? url : `https://${url}`;
-      
-      console.log('尝试打开链接:', formattedUrl);
-      
+
+      console.log("尝试打开链接:", formattedUrl);
+
       // 使用Electron的shell.openExternal API
-      window.electronAPI.openExternal(formattedUrl)
+      window.electronAPI
+        .openExternal(formattedUrl)
         .then(() => {
-          console.log('链接已在系统默认浏览器中打开');
+          console.log("链接已在系统默认浏览器中打开");
         })
-        .catch(error => {
-          console.error('打开链接失败:', error);
-          ElMessage.error('无法打开链接，请检查URL是否有效');
+        .catch((error) => {
+          console.error("打开链接失败:", error);
+          ElMessage.error("无法打开链接，请检查URL是否有效");
         });
     },
     copyLinkToClipboard(url) {
-      navigator.clipboard.writeText(url)
+      navigator.clipboard
+        .writeText(url)
         .then(() => {
           ElMessage({
-            message: '链接已复制到剪贴板',
-            type: 'success',
+            message: "链接已复制到剪贴板",
+            type: "success",
             icon: markRaw(Success),
-            duration: 1500
+            duration: 1500,
           });
         })
-        .catch(err => {
-          console.error('复制失败:', err);
-          ElMessage.error('复制链接失败');
+        .catch((err) => {
+          console.error("复制失败:", err);
+          ElMessage.error("复制链接失败");
         });
     },
     getFaviconUrl(url) {
       if (!url) return this.getDefaultIcon();
-      
+
       try {
         // 从URL提取域名
         const domain = this.getDomainFromUrl(url);
         if (!domain) return this.getDefaultIcon();
-        
+
         // 检查缓存
         if (this.faviconCache[domain]) {
           return this.faviconCache[domain];
         }
-        
+
         // 优先使用国内更快的网站图标服务
         // 直接从站点获取favicon - 速度通常最快
         return `https://${domain}/favicon.ico`;
@@ -733,71 +922,72 @@ export default {
         return this.getDefaultIcon();
       }
     },
-    
+
     handleImageError(event, url) {
       const domain = this.getDomainFromUrl(url);
       if (!domain) {
         event.target.src = this.getDefaultIcon();
         return;
       }
-      
+
       const imgSrc = event.target.src;
-      
+
       // 优化图标获取顺序，优先使用速度更快的服务
-      if (imgSrc.includes('/favicon.ico')) {
+      if (imgSrc.includes("/favicon.ico")) {
         // 备选方案1: 尝试获取站点根目录下不同格式的图标
         const rootIconUrl = `https://${domain}/apple-touch-icon.png`;
         event.target.src = rootIconUrl;
         this.faviconCache[domain] = rootIconUrl;
-      } 
-      else if (imgSrc.includes('apple-touch-icon.png')) {
+      } else if (imgSrc.includes("apple-touch-icon.png")) {
         // 备选方案2: 尝试另一种常见的图标路径
         const altIconUrl = `https://${domain}/touch-icon.png`;
         event.target.src = altIconUrl;
         this.faviconCache[domain] = altIconUrl;
-      }
-      else if (imgSrc.includes('touch-icon.png')) {
+      } else if (imgSrc.includes("touch-icon.png")) {
         // 备选方案3: 使用国内CDN的服务 (此处为示例，可能需要替换为实际可用的服务)
         // 使用 bytedance 的静态资源加速服务 - 可选
         const iconCdnUrl = `https://lf-cdn-tos.bytescm.com/obj/static/webinfra/favicon-radar/${domain}.png`;
         event.target.src = iconCdnUrl;
         this.faviconCache[domain] = iconCdnUrl;
-      }
-      else if (imgSrc.includes('bytescm.com')) {
+      } else if (imgSrc.includes("bytescm.com")) {
         // 备选方案4: 尝试Google服务
         const googleFaviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
         event.target.src = googleFaviconUrl;
         this.faviconCache[domain] = googleFaviconUrl;
-      }
-      else if (imgSrc.includes('google.com/s2')) {
+      } else if (imgSrc.includes("google.com/s2")) {
         // 备选方案5: 使用基于HTML5的内联SVG图标 (域名首字母)
         event.target.src = this.generateTextBasedIcon(domain);
         this.faviconCache[domain] = this.generateTextBasedIcon(domain);
-      }
-      else {
+      } else {
         // 所有方法都失败，使用默认图标
         event.target.src = this.getDefaultIcon();
         this.faviconCache[domain] = this.getDefaultIcon();
       }
     },
-    
+
     // 新增：根据域名生成文字图标
     generateTextBasedIcon(domain) {
       try {
         // 获取域名的首字母，转为大写
         let initial = domain.charAt(0).toUpperCase();
-        
+
         // 如果不是字母，则使用'#'符号
         if (!/[A-Za-z]/.test(initial)) {
-          initial = '#';
+          initial = "#";
         }
-        
+
         // 根据域名生成一个固定的颜色
         const colors = [
-          '#8b5cf6', '#ec4899', '#ef4444', '#f59e0b', 
-          '#10b981', '#06b6d4', '#3b82f6', '#6366f1'
+          "#8b5cf6",
+          "#ec4899",
+          "#ef4444",
+          "#f59e0b",
+          "#10b981",
+          "#06b6d4",
+          "#3b82f6",
+          "#6366f1",
         ];
-        
+
         // 使用域名的字符编码和来计算一个一致的颜色索引
         let sum = 0;
         for (let i = 0; i < domain.length; i++) {
@@ -805,7 +995,7 @@ export default {
         }
         const colorIndex = sum % colors.length;
         const bgColor = colors[colorIndex];
-        
+
         // 创建SVG图标
         const svg = `
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
@@ -815,290 +1005,313 @@ export default {
             </text>
           </svg>
         `;
-        
+
         // 转换为Base64编码的Data URL
         return `data:image/svg+xml;base64,${btoa(svg)}`;
       } catch (error) {
-        console.error('生成文字图标失败:', error);
+        console.error("生成文字图标失败:", error);
         return this.getDefaultIcon();
       }
     },
-    
+
     getDefaultIcon() {
-      return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzhiNWNmNiI+PHBhdGggZD0iTTExLjk5IDJDNi40NyAyIDIgNi40OCAyIDEyczcuNDYgMTAgMTAgMTBjNS41MiAwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMS45OSAyek0xMiAyMGMtNC40MiAwLTgtMy41OC04LThzMy41OC04IDgtOCA4IDMuNTggOCA4LTMuNTggOC04IDh6bS42NS0xMC43NWMuMTEtLjU1LS4xNS0xLjEtLjY5LTEuMy0uNTMtLjE5LTEuMTIuMDgtMS4zMi42MS0uMTkuNTMuMDkgMS4xMS42MiAxLjMuNTMuMTkgMS4xMS0uMDkgMS4zLS42MS4wMy0uMDYuMDQtLjEyLjA1LS4xOHY5LjRjMCAuMzguMzEuNjkuNjkuNjlzLjY5LS4zMS42OS0uNjlWOS4yNXpNMTIgNmMtLjU1IDAtMS0uNDUtMS0xcy40NS0xIDEtMSAxIC40NSAxIDEtLjQ1IDEtMS0uNDUgMS0xIDF6Ii8+PC9zdmc+';
+      return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzhiNWNmNiI+PHBhdGggZD0iTTExLjk5IDJDNi40NyAyIDIgNi40OCAyIDEyczcuNDYgMTAgMTAgMTBjNS41MiAwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMS45OSAyek0xMiAyMGMtNC40MiAwLTgtMy41OC04LThzMy41OC04IDgtOCA4IDMuNTggOCA4LTMuNTggOC04IDh6bS42NS0xMC43NWMuMTEtLjU1LS4xNS0xLjEtLjY5LTEuMy0uNTMtLjE5LTEuMTIuMDgtMS4zMi42MS0uMTkuNTMuMDkgMS4xMS42MiAxLjMuNTMuMTkgMS4xMS0uMDkgMS4zLS42MS4wMy0uMDYuMDQtLjEyLjA1LS4xOHY5LjRjMCAuMzguMzEuNjkuNjkuNjlzLjY5LS4zMS42OS0uNjlWOS4yNXpNMTIgNmMtLjU1IDAtMS0uNDUtMS0xcy40NS0xIDEtMSAxIC40NSAxIDEtLjQ1IDEtMS0uNDUgMS0xIDF6Ii8+PC9zdmc+";
     },
     getDomainFromUrl(url) {
       try {
         // 确保URL有协议头
         if (!url.match(/^https?:\/\//i)) {
-          url = 'https://' + url;
+          url = "https://" + url;
         }
         // 提取域名
         return new URL(url).hostname;
       } catch (error) {
-        return '';
+        return "";
       }
     },
     // 修正：复制链接方法
     copyToClipboard(text) {
       // 使用传统的document.execCommand方法复制
-      const textarea = document.createElement('textarea');
+      const textarea = document.createElement("textarea");
       textarea.value = text;
-      textarea.style.position = 'fixed'; // 避免滚动
+      textarea.style.position = "fixed"; // 避免滚动
       document.body.appendChild(textarea);
       textarea.focus();
       textarea.select();
-      
+
       try {
-        const successful = document.execCommand('copy');
+        const successful = document.execCommand("copy");
         if (successful) {
           ElMessage({
-            message: '链接已复制到剪贴板',
-            type: 'success',
-            duration: 1500
+            message: "链接已复制到剪贴板",
+            type: "success",
+            duration: 1500,
           });
         } else {
-          throw new Error('复制操作被拒绝');
+          throw new Error("复制操作被拒绝");
         }
       } catch (err) {
-        console.error('复制失败:', err);
-        ElMessage.error('复制链接失败');
+        console.error("复制失败:", err);
+        ElMessage.error("复制链接失败");
       }
-      
+
       document.body.removeChild(textarea);
     },
     handleOpenLink(url) {
       if (!url) {
-        ElMessage.error('链接地址无效');
+        ElMessage.error("链接地址无效");
         return;
       }
 
       // 确保URL格式正确
       const formattedUrl = url.match(/^https?:\/\//i) ? url : `https://${url}`;
-      
-      console.log('打开链接:', formattedUrl);
-      
+
+      console.log("打开链接:", formattedUrl);
+
       // 不再立即显示成功提示，而是等待Promise完成后再显示
-      window.electronAPI.openExternal(formattedUrl)
-        .catch(error => {
-          console.error('打开链接失败:', error);
-          
-          // 尝试备用方法
-          try {
-            window.open(formattedUrl, '_blank', 'noopener');
-          } catch (backupError) {
-            ElMessage.error('无法打开链接，请检查URL是否有效');
-          }
-        });
+      window.electronAPI.openExternal(formattedUrl).catch((error) => {
+        console.error("打开链接失败:", error);
+
+        // 尝试备用方法
+        try {
+          window.open(formattedUrl, "_blank", "noopener");
+        } catch (backupError) {
+          ElMessage.error("无法打开链接，请检查URL是否有效");
+        }
+      });
     },
     // 窗口控制方法
     minimizeWindow() {
       window.electronAPI.minimizeWindow();
     },
-    
+
     closeWindow() {
       window.electronAPI.closeWindow();
     },
     // 处理数据管理下拉菜单操作
     async handleDataAction(command) {
-      switch(command) {
-        case 'export':
+      switch (command) {
+        case "export":
           this.exportData();
           break;
-        case 'import':
+        case "import":
           this.importDataAction();
           break;
-        case 'bulk':
+        case "bulk":
           this.showBulkImport();
           break;
       }
     },
-    
+
     // 导出数据
     async exportData() {
       try {
         // 获取所有链接数据
         const links = await window.electronAPI.queryDatabase(
-          'SELECT * FROM links', 
+          "SELECT * FROM links",
           []
         );
-        
+
         if (links.length === 0) {
-          ElMessage.warning('没有数据可导出');
+          ElMessage.warning("没有数据可导出");
           return;
         }
-        
+
         const result = await window.electronAPI.exportData(links);
-        
+
         if (result.success) {
           ElMessage.success(`数据已导出到: ${result.path}`);
         } else {
           ElMessage.info(result.message);
         }
       } catch (error) {
-        console.error('导出数据失败:', error);
-        ElMessage.error('导出数据失败');
+        console.error("导出数据失败:", error);
+        ElMessage.error("导出数据失败");
       }
     },
-    
+
     // 导入数据
     async importDataAction() {
       try {
         const result = await window.electronAPI.importData();
-        
+
         if (!result.success) {
-          if (result.message !== '已取消导入') {
+          if (result.message !== "已取消导入") {
             ElMessage.error(result.message);
           }
           return;
         }
-        
+
         this.importData = result.data;
         this.importDialogVisible = true;
       } catch (error) {
-        console.error('导入数据失败:', error);
-        ElMessage.error('导入数据失败');
+        console.error("导入数据失败:", error);
+        ElMessage.error("导入数据失败");
       }
     },
-    
+
     // 确认导入数据
     async confirmImport() {
       if (!this.importData || this.importData.length === 0) {
-        ElMessage.warning('没有有效的导入数据');
+        ElMessage.warning("没有有效的导入数据");
         return;
       }
-      
+
       try {
         this.importing = true;
-        
+
         // 清空当前数据
-        await window.electronAPI.executeDatabase('DELETE FROM links', []);
-        
+        await window.electronAPI.executeDatabase("DELETE FROM links", []);
+
         // 批量插入数据
         for (const link of this.importData) {
           await window.electronAPI.executeDatabase(
-            'INSERT INTO links (id, title, url, category, created_at) VALUES (?, ?, ?, ?, ?)',
+            "INSERT INTO links (id, title, url, category, created_at) VALUES (?, ?, ?, ?, ?)",
             [
-              link.id, 
-              link.title, 
-              link.url, 
+              link.id,
+              link.title,
+              link.url,
               link.category || null,
-              link.created_at || new Date().toISOString()
+              link.created_at || new Date().toISOString(),
             ]
           );
         }
-        
+
         ElMessage.success(`成功导入 ${this.importData.length} 条链接`);
         this.importDialogVisible = false;
         this.importData = [];
-        
+
         // 重新加载数据
         await this.loadLinks();
-        
       } catch (error) {
-        console.error('导入数据失败:', error);
-        ElMessage.error('导入数据失败');
+        console.error("导入数据失败:", error);
+        ElMessage.error("导入数据失败");
       } finally {
         this.importing = false;
       }
     },
-    
+
     // 显示批量导入对话框
     showBulkImport() {
       this.bulkData = [];
       this.bulkImportDialogVisible = true;
     },
-    
+
     // 选择批量导入的JSON文件
     async selectBulkJsonFile() {
       try {
         const result = await window.electronAPI.readJsonFile();
-        
+
         if (!result.success) {
-          if (result.message !== '已取消选择') {
+          if (result.message !== "已取消选择") {
             ElMessage.error(result.message);
           }
           return;
         }
-        
+
         // 验证数据格式
         if (!Array.isArray(result.data)) {
-          ElMessage.error('无效的JSON格式，应为链接对象数组');
+          ElMessage.error("无效的JSON格式，应为链接对象数组");
           return;
         }
-        
+
         this.bulkData = result.data;
-        
+
         if (this.validBulkData.length === 0) {
-          ElMessage.warning('未找到有效的链接数据或所有链接已存在');
+          ElMessage.warning("未找到有效的链接数据或所有链接已存在");
         } else {
           ElMessage.success(`找到 ${this.validBulkData.length} 条可导入的链接`);
         }
       } catch (error) {
-        console.error('读取JSON文件失败:', error);
-        ElMessage.error('读取JSON文件失败');
+        console.error("读取JSON文件失败:", error);
+        ElMessage.error("读取JSON文件失败");
       }
     },
-    
+
     // 确认批量导入
     async confirmBulkImport() {
       if (this.validBulkData.length === 0) {
-        ElMessage.warning('没有有效的链接数据可导入');
+        ElMessage.warning("没有有效的链接数据可导入");
         return;
       }
-      
+
       try {
         this.bulkImporting = true;
-        
+
         // 批量插入数据
         for (const link of this.validBulkData) {
           await window.electronAPI.executeDatabase(
-            'INSERT INTO links (title, url, category) VALUES (?, ?, ?)',
+            "INSERT INTO links (title, url, category) VALUES (?, ?, ?)",
             [link.title, link.url, link.category || null]
           );
         }
-        
+
         ElMessage.success(`成功导入 ${this.validBulkData.length} 条链接`);
         this.bulkImportDialogVisible = false;
         this.bulkData = [];
-        
+
         // 重新加载数据
         await this.loadLinks();
-        
       } catch (error) {
-        console.error('批量导入失败:', error);
-        ElMessage.error('批量导入失败');
+        console.error("批量导入失败:", error);
+        ElMessage.error("批量导入失败");
       } finally {
         this.bulkImporting = false;
       }
     },
-    
+
     // 标准化URL以用于比较
     normalizeUrl(url) {
-      if (!url) return '';
-      
+      if (!url) return "";
+
       // 确保有协议
       let normalizedUrl = url;
       if (!normalizedUrl.match(/^https?:\/\//i)) {
-        normalizedUrl = 'https://' + normalizedUrl;
+        normalizedUrl = "https://" + normalizedUrl;
       }
-      
+
       try {
         // 解析URL
         const parsed = new URL(normalizedUrl);
         // 移除尾部斜杠，简化为小写进行比较
-        return (parsed.origin + parsed.pathname).replace(/\/$/, '').toLowerCase() + parsed.search;
+        return (
+          (parsed.origin + parsed.pathname).replace(/\/$/, "").toLowerCase() +
+          parsed.search
+        );
       } catch (e) {
         return normalizedUrl.toLowerCase();
       }
     },
-    
+
     // 添加一个关于菜单项的方法
     showAbout() {
       window.electronAPI.showAbout();
-    }
-  }
-}
+    },
+
+    // 新增：打开空白浏览器
+    openBlankBrowser() {
+      window.electronAPI
+        .openExternal("about:blank")
+        .then(() => {
+          console.log("已打开空白浏览器");
+        })
+        .catch((error) => {
+          console.error("打开浏览器失败:", error);
+          // 备用URL
+          window.electronAPI
+            .openExternal("https://www.google.com")
+            .catch((err) => {
+              ElMessage.error("无法打开浏览器，请检查您的系统设置");
+            });
+        });
+    },
+
+    // 新增：打开百度搜索
+    openBaiduSearch() {
+      this.handleOpenLink("https://www.baidu.com");
+    },
+  },
+};
 </script>
 
 <style>
@@ -1195,7 +1408,10 @@ export default {
 }
 
 /* 搜索栏和内容区域布局 */
-.search-bar, .category-nav, .category-title, .empty-state {
+.search-bar,
+.category-nav,
+.category-title,
+.empty-state {
   width: calc(100% - 48px);
   max-width: 1200px;
   margin-left: auto;
@@ -1206,7 +1422,10 @@ export default {
 /* 卡片容器更紧凑的布局 */
 .card-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 更小的卡片宽度 */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(250px, 1fr)
+  ); /* 更小的卡片宽度 */
   gap: 16px;
   width: calc(100% - 48px);
   max-width: 1200px;
@@ -1246,7 +1465,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f3ff; /* 更浅的紫色背景 */
+  background-color: #d8b4fe; /* 更浅的紫色背景 */
   flex-shrink: 0;
   border: 1px solid #e9e5f8;
 }
@@ -1407,21 +1626,25 @@ export default {
   .card-container {
     grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
   }
-  
+
   .search-bar {
     flex-direction: column;
   }
-  
+
   .filter-select {
     width: 100%;
   }
-  
+
   .app-header {
     width: calc(100% - 24px);
     padding: 14px 18px;
   }
-  
-  .search-bar, .category-nav, .card-container, .category-title, .empty-state {
+
+  .search-bar,
+  .category-nav,
+  .card-container,
+  .category-title,
+  .empty-state {
     width: calc(100% - 24px);
   }
 }
@@ -1666,11 +1889,12 @@ export default {
 .icon-preview {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 15px;
-  border-radius: 8px;
+  gap: 12px;
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
 }
 
 .preview-favicon {
@@ -1678,9 +1902,10 @@ export default {
   height: 24px;
 }
 
-.preview-text {
-  font-size: 14px;
+.preview-domain {
+  font-size: 0.9rem;
   color: #6b7280;
+  font-weight: 500;
 }
 
 .copy-success {
@@ -1701,7 +1926,8 @@ export default {
   overflow: hidden;
 }
 
-.el-input__wrapper, .el-button {
+.el-input__wrapper,
+.el-button {
   border-radius: 10px;
 }
 
@@ -1709,11 +1935,11 @@ export default {
   .card-container {
     grid-template-columns: 1fr;
   }
-  
+
   .search-bar {
     flex-direction: column;
   }
-  
+
   .filter-select {
     width: 100%;
   }
@@ -1810,8 +2036,8 @@ export default {
 }
 
 /* 确保在Safari中也能正常显示 */
-@media not all and (min-resolution:.001dpcm) { 
-  @supports (-webkit-appearance:none) {
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) {
     .card-title {
       color: #4b5563;
       background: none;
@@ -1898,17 +2124,13 @@ export default {
 
 /* 表单两列布局 */
 .form-row {
-  display: flex;
   gap: 15px;
   align-items: flex-start;
 }
 
-.category-item {
-  flex: 3;
-}
-
+.category-item,
 .preview-item {
-  flex: 2;
+  width: 100%;
 }
 
 .icon-preview-compact {
@@ -2105,5 +2327,49 @@ export default {
   border-color: #d1d5db !important;
   color: #6b7280 !important;
   margin-right: 12px !important;
+}
+
+/* 空白浏览器按钮样式 */
+.blank-browser-btn {
+  margin-left: 12px;
+  color: white !important;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  padding: 4px 8px !important;
+  height: auto !important;
+  border-radius: 4px !important;
+}
+
+.blank-browser-btn:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.blank-browser-btn .el-icon {
+  margin-right: 0;
+  font-size: 16px;
+}
+
+/* 百度导航样式 */
+.baidu-tab {
+  background: linear-gradient(135deg, #4285f4, #2962ff);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.baidu-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.25);
+  border: none;
+  color: white;
+}
+
+.baidu-icon {
+  margin-left: 2px;
+  font-size: 14px;
 }
 </style>
