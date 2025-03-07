@@ -1,0 +1,30 @@
+{
+  name: '@electron-forge/maker-squirrel',
+  config: {
+    name: 'infinite-Links',
+    // 仅当图标存在时才设置图标路径
+    ...(iconExists(path.resolve(__dirname, 'assets', 'icon.ico')) 
+        ? { setupIcon: path.resolve(__dirname, 'assets', 'icon.ico') } 
+        : {}),
+    language: 2052, // 简体中文
+    setupExe: 'infinite-Links安装程序.exe',
+    noMsi: false,
+    // 设置注册表相关项
+    registry: [
+      // 开机自启动 - 修改为以静默方式启动
+      {
+        name: 'startup',
+        path: 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run',
+        value: {
+          name: 'infinite-Links',
+          value: '"$EXEPATH" --autostart'  // 添加自启动参数
+        }
+      }
+    ],
+    // 安装程序名称和图标
+    iconUrl: 'file:///' + path.resolve(__dirname, 'assets', 'icon.ico').replace(/\\/g, '/'),
+    setupMutex: 'infinite-Links_SingletonMutex',
+    // 使用自定义WiX模板
+    templatePath: './wix-template.xml',
+  }
+}

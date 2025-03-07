@@ -1,25 +1,45 @@
 {
-  "name": "ai-links-snippet",
-  "productName": "无限访问",
+  "name": "infinite-links",
+  "productName": "infinite-Links",
   "version": "1.0.0",
-  "description": "方便实用的链接收藏工具",
-  "main": "main.js",
+  "description": "轻松管理您的链接收藏",
+  "author": {
+    "name": "Your Name",
+    "email": "your-email@example.com"
+  },
+  "license": "MIT",
+  "main": "electron/main.js",
   "scripts": {
     "start": "electron-forge start",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "rebuild": "electron-rebuild -f -w sqlite3",
-    "build": "webpack --mode production",
     "dev": "webpack --mode development --watch",
-    "package": "node pre-package.js && webpack --mode production && electron-forge package",
-    "make": "node pre-package.js && webpack --mode production && electron-forge make",
-    "publish": "webpack --mode production && electron-forge publish"
+    "build": "webpack --mode production && echo '构建完成! 输出文件在dist目录'",
+    "rebuild": "electron-rebuild -f",
+    "package": "electron-forge package",per.js && npm run rebuild",
+    "make": "webpack --mode production && electron-forge make",helper.js && npm install",
+    "make:win": "webpack --mode production && electron-forge make --platform win32",
+    "make:mac": "webpack --mode production && electron-forge make --platform darwin",
+    "make:win": "webpack --mode production && electron-forge make --platform win32",
+    "make:mac": "webpack --mode production && electron-forge make --platform darwin",
+    "make:linux": "webpack --mode production && electron-forge make --platform linux",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\"",
+    "clean": "rimraf out/ dist/",
+    "prepare-build": "node pre-build.js",
+    "setup": "node setup-dev.js"
   },
-  "author": "LJL",
-  "license": "ISC",
-  "config": {
-    "forge": "./forge.config.js"
-  },
-  "devDependencies": {
+  "keywords": [
+    "electron", 
+    "links", 
+    "bookmarks", 
+    "manager"
+  ],
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.1.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "element-plus": "^2.3.14",
+    "better-sqlite3": "^8.7.0",
+    "vue": "^3.3.4",
+    "vuedraggable": "^4.1.0"
     "@electron-forge/cli": "^6.4.2",
     "@electron-forge/maker-deb": "^6.4.2",
     "@electron-forge/maker-dmg": "^6.4.2",
@@ -27,20 +47,59 @@
     "@electron-forge/maker-squirrel": "^6.4.2",
     "@electron-forge/maker-zip": "^6.4.2",
     "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
-    "css-loader": "^7.1.2",
-    "electron": "^35.0.0",
+    "css-loader": "^6.8.1",zip": "^6.4.2",
+    "electron": "^27.0.2",n-auto-unpack-natives": "^6.4.2",
     "electron-rebuild": "^3.2.9",
-    "rimraf": "^5.0.10",
-    "style-loader": "^4.0.0",
-    "vue-loader": "^17.4.2",
-    "vue-template-compiler": "^2.7.16",
-    "webpack": "^5.98.0",
-    "webpack-cli": "^6.0.1"
-  },
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.1",
-    "element-plus": "^2.5.6",
-    "sqlite3": "^5.1.7",
-    "vue": "^3.4.20"
-  }
-}
+    "rimraf": "^5.0.5",2",
+    "style-loader": "^3.3.3",.9",
+    "vue-loader": "^17.2.2",
+    "webpack": "^5.88.2",.3",
+    "webpack-cli": "^5.1.4",
+  },"webpack": "^5.88.2",
+  "engines": {li": "^5.1.4"
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },"node": ">=14.0.0",
+  "repository": {.0"
+    "type": "git",
+    "url": "https://github.com/yourusername/infinite-links.git"
+  },"type": "git",
+  "config": {ttps://github.com/yourusername/infinite-links.git"
+    "forge": "./forge.config.js"
+  },onfig": {
+  "build": { "./forge.config.js"
+    "appId": "com.infinite.links",
+    "productName": "infinite-Links",
+    "directories": {finite.links",
+      "output": "out"nfinite-Links",
+    },irectories": {
+    "files": [: "out"
+      "dist/**/*",
+      "electron/**/*",
+      "assets/**/*",
+      "index.html",*",
+      "preload.js",,
+      "package.json"
+    ],"preload.js",
+    "win": {ge.json"
+      "target": ["nsis", "portable"],
+      "icon": "assets/icon.ico"
+    },"target": ["nsis", "portable"],
+    "mac": {: "assets/icon.ico"
+      "target": ["dmg"],
+      "icon": "assets/icon.icns"
+    },"target": ["dmg"],
+    "linux": {"assets/icon.icns"
+      "target": ["AppImage", "deb"],
+      "icon": "assets/icon.png",
+      "category": "Utility", "deb"],
+    } "icon": "assets/icon.png",
+  },   "category": "Utility"
+  "overrides": {   }
+    "better-sqlite3": {  }
+
+
+
+
+
+}  }    }      "electron": "27.3.11"}

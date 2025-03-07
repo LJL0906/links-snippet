@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https://icons.duckduckgo.com https://www.google.com https://* https://favicon.io;"
-    />
-    <meta
-      http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https://icons.duckduckgo.com https://www.google.com https://* https://favicon.io;"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; base-uri 'self'"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>无限访问</title>
+    <title>infinite-Links</title>
+    <link rel="stylesheet" href="dist/style.css">
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -52,10 +50,84 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #a78bfa;
       }
+
+      /* 添加错误处理样式 */
+      .app-error {
+        margin: 20px;
+        padding: 20px;
+        background: #fee2e2;
+        border-left: 4px solid #ef4444;
+        color: #7f1d1d;
+        border-radius: 8px;
+      }
+      
+      .app-error h2 {
+        margin-top: 0;
+        color: #b91c1c;
+      }
+      
+      .app-error pre {
+        background: #fef2f2;
+        padding: 10px;
+        border-radius: 4px;
+        overflow: auto;
+        max-height: 200px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
     </style>
   </head>
   <body>
+    <!-- 添加初始加载界面，方便判断加载状态 -->
+    <div id="loading-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: #f9f7fd; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;">
+      <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #8b5cf6;">infinite-Links</div>
+      <div style="width: 50px; height: 50px; border: 5px solid #e9e5f8; border-top-color: #8b5cf6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <div id="loading-status" style="margin-top: 20px; color: #666;">应用初始化中...</div>
+    </div>
+
     <div id="app"></div>
+    
+    <script>
+      // 监听应用初始化状态
+      document.addEventListener('DOMContentLoaded', () => {
+        const loadingStatus = document.getElementById('loading-status');
+        if (loadingStatus) loadingStatus.textContent = '正在加载应用...';
+        
+        // 检测electronAPI是否加载
+        setTimeout(() => {
+          if (!window.electronAPI) {
+            const loadingStatus = document.getElementById('loading-status');
+            if (loadingStatus) loadingStatus.textContent = 'electronAPI 未加载，请重启应用';
+          } else {
+            const loadingStatus = document.getElementById('loading-status');
+            if (loadingStatus) loadingStatus.textContent = '正在连接数据库...';
+          }
+        }, 1000);
+        
+        // 30秒后如果仍然显示加载，提示可能卡住了
+        setTimeout(() => {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen && loadingScreen.style.display !== 'none') {
+            const loadingStatus = document.getElementById('loading-status');
+            if (loadingStatus) {
+              loadingStatus.textContent = '应用可能已卡住，请尝试重启';
+              loadingStatus.style.color = '#f56c6c';
+            }
+          }
+        }, 30000);
+      });
+      
+      // 在主应用加载完成后移除加载界面
+      window.addEventListener('app-loaded', () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) loadingScreen.style.display = 'none';
+      });
+    </script>
+    
+    <!-- 更新脚本引用顺序 - 先引入vendors -->
+    <script src="dist/vendors.bundle.js"></script>
+    <script src="dist/main.bundle.js"></script>
   </body>
-  <script src="./dist/bundle.js"></script>
 </html>

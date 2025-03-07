@@ -1,0 +1,1323 @@
+/* 无边框窗口的标题栏样式 */
+.title-bar {
+  height: 36px;
+  background-color: #8b5cf6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  -webkit-app-region: drag; /* 允许拖拽窗口 */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.app-icon {
+  font-size: 18px;
+  color: white;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.title-text,
+.subTitle-text {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.window-controls {
+  display: flex;
+  -webkit-app-region: no-drag; /* 控制按钮不能用于拖拽 */
+}
+
+.window-control {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+.window-control:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.close-btn:hover {
+  background-color: #f44336;
+}
+
+/* 调整容器以适应新标题栏和添加边距 */
+.container {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  background-color: #f9f7fd;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* 防止右侧出现白色边框 */
+}
+
+/* 内容区域容器 - 确保两侧有边距 */
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 调整应用头部位置和样式 */
+.app-header {
+  margin: 20px auto;
+  width: calc(100% - 48px); /* 确保两侧边距 */
+  max-width: 1200px;
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  padding: 16px 24px;
+  border-radius: 24px; /* 更大的圆角 */
+  box-shadow: 0 8px 20px rgba(138, 92, 246, 0.15); /* 更柔和的阴影 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 搜索栏和内容区域布局 */
+.search-bar,
+.category-nav,
+.category-title,
+.empty-state {
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* 卡片容器更紧凑的布局 */
+.card-container {
+  display: flex !important;  /* 使用flex布局 */
+  flex-wrap: wrap !important;  /* 允许换行 */
+  gap: 16px !important;
+  width: calc(100% - 48px) !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* 药丸形状的卡片样式 - 更可爱的风格 */
+.capsule-card {
+  background: white;
+  border-radius: 20px; /* 更大的圆角 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  padding: 8px 10px 8px 8px; /* 减小水平内边距 */
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid #e9e5f8;
+  display: flex;
+  align-items: center;
+  height: 44px; /* 稍微小一点的高度 */
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.capsule-card:hover {
+  transform: translateY(-3px) scale(1.02); /* 轻微放大效果 */
+  box-shadow: 0 8px 20px rgba(138, 92, 246, 0.12);
+  border-color: #d8b4fe;
+}
+
+/* 图标容器更可爱的样式 */
+.site-icon {
+  width: 30px; /* 减小宽度 */
+  height: 30px; /* 减小高度 */
+  border-radius: 50%;
+  margin-right: 8px; /* 减小右边距 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6; /* 更浅的紫色背景 */
+  flex-shrink: 0;
+  border: 1px solid #e9e5f8;
+}
+
+.favicon {
+  width: 20px; /* 减小图标大小 */
+  height: 20px;
+  object-fit: contain;
+}
+
+/* 更好看的卡片标题 */
+.card-title {
+  font-weight: 600;
+  font-size: 0.9rem; /* 稍微小一点的字体 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+  background-image: linear-gradient(45deg, #4b5563, #8b5cf6); /* 更紫色的渐变 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 更可爱的分类标签 */
+.card-category {
+  display: inline-block;
+  background: #f3e8ff;
+  color: #8b5cf6;
+  padding: 1px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin-top: 4px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 按钮样式更可爱化 */
+.action-btn {
+  width: 20px !important; /* 更小的按钮 */
+  height: 20px !important;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  font-size: 10px !important;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: scale(1.15); /* 悬浮时轻微放大 */
+}
+
+/* 美化分类导航 */
+.category-nav {
+  margin-bottom: 24px;
+  overflow: visible; /* 改为visible，防止悬浮时被截断 */
+  padding: 5px 0 20px 0; /* 增加底部填充，为悬停效果留出空间 */
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  position: relative; /* 确保定位上下文 */
+  z-index: 10; /* 确保在其他元素之上 */
+}
+
+.category-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 5px 0;
+  position: relative; /* 保持tabs的相对定位 */
+  z-index: 5; 
+}
+
+.category-tab {
+  background: white;
+  border: 2px solid #e9e5f8;
+  border-radius: 20px;
+  padding: 7px 14px 7px 24px; /* 增加左侧填充为拖拽把手留出空间 */
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  position: relative; /* 对内部元素进行定位 */
+  transform-origin: center center; /* 设置变换的原点 */
+}
+
+.category-tab:hover {
+  border-color: #d8b4fe;
+  color: #8b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(138, 92, 246, 0.1);
+}
+
+/* 调整拖动把手样式和位置，使其更容易点击 */
+.drag-handle {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: grab;
+  color: #a1a1aa;
+  font-size: 14px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  user-select: none;
+  width: 12px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-tab:hover .drag-handle {
+  opacity: 1;
+}
+
+/* 卡片容器更紧凑的布局 */
+.card-container {
+  display: flex !important;  /* 使用flex布局 */
+  flex-wrap: wrap !important;  /* 允许换行 */
+  gap: 16px !important;
+  width: calc(100% - 48px) !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* 卡片在容器中的宽度设置 */
+.capsule-card-wrapper {
+  width: calc(33.33% - 12px) !important;  /* 3列布局，考虑间距 */
+  min-width: 250px !important;
+  max-width: 350px !important;
+  flex: 1 0 auto !important;
+  margin-bottom: 16px !important;
+  position: relative !important;
+  transition: all 0.2s ease !important;
+}
+
+/* 美化数据管理按钮 */
+.data-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.9);
+  color: #8b5cf6;
+  border-color: rgba(255, 255, 255, 0.3);
+  font-size: 0.9rem;
+  padding: 8px 16px;
+}
+
+.data-btn:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #7c3aed; /* 更深的紫色，悬浮时更清晰 */
+}
+
+/* 优化添加按钮样式 */
+.add-btn {
+  background: white;
+  color: #8b5cf6;
+  border: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  margin-left: 10px;
+}
+
+.add-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: white;
+  color: #7c3aed;
+}
+
+/* 修复对话框样式 */
+.custom-dialog .el-dialog {
+  margin: auto !important;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .card-container {
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+  }
+
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .app-header {
+    width: calc(100% - 24px);
+    padding: 14px 18px;
+  }
+
+  .search-bar,
+  .category-nav,
+  .card-container,
+  .category-title,
+  .empty-state {
+    width: calc(100% - 24px);
+  }
+}
+
+/* 其余保持不变，确保主题风格一致性 */
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.app-icon {
+  font-size: 18px;
+  color: white;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.title-text {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.window-controls {
+  display: flex;
+  -webkit-app-region: no-drag; /* 控制按钮不能用于拖拽 */
+}
+
+.window-control {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+.window-control:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.close-btn:hover {
+  background-color: #f44336;
+}
+
+/* 调整容器以适应新标题栏 */
+.container {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  background-color: #f9f7fd;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* 防止右侧出现白色边框 */
+}
+
+/* 调整应用头部位置 */
+.app-header {
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  padding: 16px 24px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(138, 92, 246, 0.15);
+}
+
+.app-title {
+  color: white;
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1;
+}
+
+.add-btn {
+  background: white;
+  color: #8b5cf6;
+  border: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.add-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: white;
+  color: #7c3aed;
+}
+
+.search-bar {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 16px; /* 增加间距 */
+  align-items: stretch;
+}
+
+.search-input {
+  flex: 3; /* 调整搜索框宽度比例 */
+}
+
+.filter-select {
+  flex: 2; /* 增加分类筛选框的宽度比例 */
+  min-width: 200px; /* 设置最小宽度 */
+}
+
+.card-container {
+  display: flex !important;  /* 使用flex布局 */
+  flex-wrap: wrap !important;  /* 允许换行 */
+  gap: 16px !important;
+  width: calc(100% - 48px) !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* 药丸形状的卡片样式 */
+.capsule-card {
+  background: white;
+  border-radius: 9999px; /* 药丸形状 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 8px 12px 8px 8px;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid #e9e5f8;
+  display: flex;
+  align-items: center;
+  height: 50px; /* 固定高度更像胶囊 */
+  overflow: hidden;
+  cursor: pointer; /* 确保整个卡片显示为可点击状态 */
+}
+
+.capsule-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(138, 92, 246, 0.15);
+  border-color: #d8b4fe;
+}
+
+.site-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.favicon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.card-content {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+  background: linear-gradient(45deg, #4b5563, #6366f1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* 修复透明文本 */
+}
+
+.card-category {
+  display: inline-block;
+  background: #f3e8ff;
+  color: #8b5cf6;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-actions {
+  display: flex;
+  gap: 5px;
+  transition: opacity 0.2s ease;
+  margin-left: 8px;
+}
+
+.action-btn {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  font-size: 12px !important;
+}
+
+.action-btn .el-icon {
+  font-size: 12px !important;
+}
+
+.copy-btn {
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.edit-btn {
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.delete-btn {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  padding: 40px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.icon-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
+}
+
+.preview-favicon {
+  width: 24px;
+  height: 24px;
+}
+
+.preview-domain {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.copy-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.copy-icon {
+  font-size: 32px;
+  color: #10b981;
+  margin-bottom: 10px;
+}
+
+.el-dialog {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.el-input__wrapper,
+.el-button {
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .card-container {
+    grid-template-columns: 1fr;
+  }
+
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+}
+
+/* 分类导航样式 */
+.category-nav {
+  margin-bottom: 24px;
+  overflow: visible; /* 改为visible，防止悬浮时被截断 */
+  padding: 5px 0 20px 0; /* 增加底部填充，为悬停效果留出空间 */
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  position: relative; /* 确保定位上下文 */
+  z-index: 10; /* 确保在其他元素之上 */
+}
+
+.category-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 5px 0;
+  position: relative; /* 保持tabs的相对定位 */
+  z-index: 5; 
+}
+
+.category-tab {
+  background: white;
+  border: 2px solid #e9e5f8;
+  border-radius: 20px;
+  padding: 7px 14px 7px 24px; /* 增加左侧填充为拖拽把手留出空间 */
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  position: relative; /* 对内部元素进行定位 */
+  transform-origin: center center; /* 设置变换的原点 */
+}
+
+.category-tab:hover {
+  border-color: #d8b4fe;
+  color: #8b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(138, 92, 246, 0.1);
+}
+
+.category-tab.active {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 6px 14px rgba(138, 92, 246, 0.18);
+}
+
+.all-tab {
+  background: #f3e8ff;
+  border-color: #d8b4fe;
+  color: #8b5cf6;
+}
+
+.all-tab.active {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  color: white;
+}
+
+/* 调整拖动把手样式和位置，使其更容易点击 */
+.drag-handle {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: grab;
+  color: #a1a1aa;
+  font-size: 14px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  user-select: none;
+  width: 12px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-tab:hover .drag-handle {
+  opacity: 1;
+}
+
+.category-count {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  margin-left: 8px;
+}
+
+.category-tab.active .category-count {
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.category-title {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  color: #4b5563;
+  padding-bottom: 8px;
+  border-bottom: 2px dashed #e9e5f8;
+  display: flex;
+  align-items: center;
+}
+
+.category-title .category-count {
+  background-color: #f3e8ff;
+  color: #8b5cf6;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  margin-left: 10px;
+}
+
+.category-group {
+  margin-bottom: 30px;
+}
+
+/* 修复颜色透明问题 */
+.card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+  background-image: linear-gradient(45deg, #4b5563, #6366f1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 确保在Safari中也能正常显示 */
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) {
+    .card-title {
+      color: #4b5563;
+      background: none;
+    }
+  }
+}
+
+/* 美化表单和对话框样式 */
+.custom-dialog .el-dialog__header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  color: white;
+  border-radius: 16px 16px 0 0;
+}
+
+.custom-dialog .el-dialog__title {
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.custom-dialog .el-dialog__headerbtn {
+  top: 14px;
+  right: 16px;
+}
+
+.custom-dialog .el-dialog__headerbtn .el-dialog__close {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.custom-dialog .el-dialog__body {
+  padding: 20px;
+}
+
+.dialog-content {
+  padding: 0;
+}
+
+/* 紧凑型表单头部 */
+.form-header-compact {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: rgba(139, 92, 246, 0.05);
+  padding: 12px;
+  border-radius: 10px;
+  border-left: 4px solid #8b5cf6;
+}
+
+.form-icon-compact {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #bfa7fa 0%, #9f75fb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.form-title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: #4b5563;
+}
+
+.form-description {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.compact-form .el-form-item {
+  margin-bottom: 15px;
+}
+
+/* 表单两列布局 */
+.form-row {
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.category-item,
+.preview-item {
+  width: 100%;
+}
+
+.icon-preview-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
+.preview-domain {
+  font-size: 0.8rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 确保操作按钮区在卡片悬浮时显示 */
+.capsule-card .card-actions {
+  opacity: 0.2;
+  transition: opacity 0.2s ease;
+}
+
+.capsule-card:hover .card-actions {
+  opacity: 1;
+}
+
+.dialog-footer {
+  padding: 0;
+  margin-top: -10px;
+}
+
+/* 确保操作按钮的tooltip正常显示 */
+.card-actions .el-tooltip {
+  display: inline-block;
+}
+
+/* 应用头部修改 */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 8px; /* 添加右边距 */
+}
+
+/* 导入对话框样式 */
+.import-content {
+  padding: 10px 0;
+}
+
+.alert-box {
+  margin-bottom: 20px;
+}
+
+.import-summary {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.import-summary p {
+  margin: 6px 0;
+}
+
+/* 批量导入对话框样式 */
+.bulk-import-content {
+  padding: 10px 0;
+}
+
+.format-example {
+  margin-bottom: 20px;
+}
+
+.format-title {
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.code-block {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  overflow: auto;
+  max-height: 200px;
+}
+
+.code-block pre {
+  margin: 0;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.info-block {
+  background-color: #f0f9ff;
+  border-left: 4px solid #3b82f6;
+  padding: 12px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+.info-block p {
+  margin: 5px 0;
+}
+
+.file-select-block {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0;
+}
+
+/* 美化数据管理按钮和下拉菜单 */
+.data-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.85);
+  color: #8b5cf6;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.data-btn:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-dropdown .dropdown-item {
+  padding: 10px 15px;
+}
+
+.dropdown-item-with-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.info-icon {
+  color: #8b5cf6;
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+/* 保持现有主题风格 */
+.custom-dropdown .el-dropdown-menu__item:hover:not(.is-disabled) {
+  background-color: #f3e8ff;
+}
+
+.custom-dropdown .el-dropdown-menu__item i {
+  margin-right: 8px;
+  color: #8b5cf6;
+}
+
+/* 修复添加链接对话框引起的容器闪烁问题 */
+.el-overlay {
+  overflow: hidden;
+}
+
+.el-dialog__wrapper {
+  overflow: hidden;
+}
+
+.custom-dialog .el-dialog {
+  margin: auto !important; /* 防止对话框偏移导致的闪烁 */
+}
+
+/* 优化对话框保存按钮样式 */
+.save-btn {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 500 !important;
+  padding: 10px 24px !important;
+  transition: all 0.3s ease !important;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(138, 92, 246, 0.25) !important;
+  opacity: 0.95 !important;
+}
+
+.cancel-btn {
+  border-color: #d1d5db !important;
+  color: #6b7280 !important;
+  margin-right: 12px !important;
+}
+
+/* 空白浏览器按钮样式 */
+.blank-browser-btn {
+  margin-left: 12px;
+  color: white !important;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  padding: 4px 8px !important;
+  height: auto !important;
+  border-radius: 4px !important;
+}
+
+.blank-browser-btn:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.blank-browser-btn .el-icon {
+  margin-right: 0;
+  font-size: 16px;
+}
+
+/* 百度导航样式 */
+.baidu-tab {
+  background: linear-gradient(135deg, #4285f4, #2962ff);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.baidu-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.25);
+  border: none;
+  color: white;
+}
+
+.baidu-icon {
+  margin-left: 2px;
+  font-size: 14px;
+}
+
+/* 百度搜索相关样式 */
+.baidu-search-container {
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  margin: 0 auto 16px;
+  transition: transform 0.3s ease;
+}
+
+.baidu-search-container:focus-within {
+  transform: scale(1.01);
+}
+
+.baidu-search-input .el-input__wrapper {
+  border: 2px solid transparent;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-image: linear-gradient(#fff, #fff),
+    /* 内部填充 */ linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); /* 渐变边框 */
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(138, 92, 246, 0.12);
+  padding-left: 5px;
+  transition: all 0.3s ease;
+}
+
+.baidu-search-input .el-input__wrapper:hover {
+  box-shadow: 0 6px 16px rgba(138, 92, 246, 0.18);
+  background-image: linear-gradient(#fff, #fff),
+    /* 内部填充 */ linear-gradient(135deg, #bfa7fa 0%, #9f75fb 100%); /* 更亮的渐变边框 */
+}
+
+.baidu-search-input .el-input__wrapper.is-focus {
+  box-shadow: 0 8px 20px rgba(138, 92, 246, 0.25) !important;
+  transform: translateY(-2px);
+  background-image: linear-gradient(#fff, #fff),
+    /* 内部填充 */ linear-gradient(135deg, #9f75fb 0%, #7c3aed 100%); /* 更深的渐变边框 */
+}
+
+.baidu-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.baidu-logo {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  border-radius: 50%;
+  font-size: 16px;
+  box-shadow: 0 2px 6px rgba(138, 92, 246, 0.25);
+  transition: all 0.3s ease;
+}
+
+.baidu-search-input:hover .baidu-logo {
+  box-shadow: 0 3px 8px rgba(138, 92, 246, 0.3);
+  transform: scale(1.05);
+}
+
+/* 改进搜索框的清除按钮 */
+.baidu-search-input .el-input__suffix {
+  padding-right: 3px;
+}
+
+.baidu-search-input .el-input__suffix .el-icon {
+  color: #8b5cf6;
+  font-weight: bold;
+}
+
+.baidu-search-input .el-input__inner::placeholder {
+  color: #a78bfa;
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+/* 全局容器样式 */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #f9f7fd;
+}
+
+.container {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  background-color: #f9f7fd;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* 对话框全局样式 */
+.custom-dialog .el-dialog {
+  margin: auto !important;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 修复Safari中渐变文本 */
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) {
+    .card-title {
+      color: #4b5563;
+      background: none;
+    }
+  }
+}
+
+/* 基础元素样式 */
+.el-input__wrapper,
+.el-button {
+  border-radius: 10px;
+}
+
+/* 修复滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f3ff;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4b5fd;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a78bfa;
+}
+
+/* 修复拖拽容器样式 */
+.draggable-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+
+/* 拖拽相关样式 - 增强视觉反馈 */
+.sortable-chosen {
+  cursor: grabbing !important;
+  z-index: 1000 !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(138, 92, 246, 0.2) !important;
+}
+
+.sortable-drag {
+  cursor: grabbing !important;
+  opacity: 0.9 !important;
+  z-index: 1000 !important;
+  transform: rotate(1deg) scale(1.02) !important;
+  box-shadow: 0 10px 25px rgba(138, 92, 246, 0.25) !important;
+}
+
+.ghost-card {
+  opacity: 0.5 !important;
+  background: #f3e8ff !important;
+  border: 2px dashed #d8b4fe !important;
+  height: 50px !important;
+  border-radius: 9999px !important;
+  box-shadow: none !important;
+}

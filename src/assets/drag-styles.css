@@ -1,0 +1,98 @@
+/* 拖拽相关全局样式 - 增强拖拽体验 */
+.sortable-ghost {
+  opacity: 0.5 !important;
+  position: relative !important;
+  background: #f3e8ff !important;
+  border: 2px dashed #d8b4fe !important;
+  box-shadow: none !important;
+  transform: none !important;
+  z-index: 10 !important;
+}
+
+.sortable-chosen {
+  cursor: grabbing !important;
+  z-index: 100 !important;
+  transform: scale(1.02) rotate(1deg) !important;
+  box-shadow: 0 10px 25px rgba(138, 92, 246, 0.25) !important;
+  opacity: 0.9 !important;
+}
+
+.sortable-drag {
+  cursor: grabbing !important;
+  opacity: 0.9 !important;
+  z-index: 1000 !important;
+  transform: rotate(1deg) scale(1.03) !important;
+  box-shadow: 0 12px 28px rgba(138, 92, 246, 0.3) !important;
+}
+
+/* 主要容器样式修复 */
+.card-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  width: calc(100% - 48px) !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* 拖拽手柄样式 */
+.drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+
+/* 分类拖拽容器 */
+.category-drag-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  overflow-x: auto;
+  flex-grow: 1;
+}
+
+/* 分类拖拽效果 */
+.ghost-category {
+  opacity: 0.5;
+  background: #f3e8ff !important;
+  border: 2px dashed #d8b4fe !important;
+}
+
+/* 链接卡片拖拽效果增强 */
+.ghost-card {
+  opacity: 0.5 !important;
+  background: #f3e8ff !important;
+  border: 2px dashed #d8b4fe !important;
+  height: 50px !important;
+  border-radius: 9999px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+/* 拖拽容器也使用flexbox，并保持100%宽度 */
+.draggable-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  width: 100% !important;
+  min-height: 50px !important;
+}
+
+/* 确保卡片包装器具有正确的布局属性 */
+.capsule-card-wrapper {
+  flex: 0 0 calc(33.33% - 16px) !important;
+  min-width: 250px !important;
+  max-width: calc(33.33% - 16px) !important;
+  margin-bottom: 8px !important;
+  position: relative !important;
+}
+
+/* 响应式布局优化 */
+@media (max-width: 768px) {
+  .capsule-card-wrapper {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+}

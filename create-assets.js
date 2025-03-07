@@ -1,21 +1,41 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-// 确保资源目录存在
-const assetsDir = path.join(__dirname, 'assets');
-if (!fs.existsSync(assetsDir)) {
-  fs.mkdirSync(assetsDir, { recursive: true });
-  console.log('✅ 已创建assets目录');
+/**
+ * 创建资源目录和默认资源文件
+ */
+function createAssets() {
+  console.log('创建必要的资产文件...');
+  
+  const assetsDir = path.join(__dirname, 'assets');
+  
+  // 确保assets目录存在
+  if (!fs.existsSync(assetsDir)) {
+    fs.mkdirSync(assetsDir, { recursive: true });
+    console.log('创建assets目录');
+  }
+
+  // 检查是否存在图标文件，如果不存在则创建默认图标
+  const iconFiles = {
+    'icon.ico': '构建Windows应用程序需要的图标文件',
+    'icon.icns': '构建macOS应用程序需要的图标文件',
+    'icon.png': '构建Linux应用程序需要的图标文件'
+  };
+
+  for (const [filename, description] of Object.entries(iconFiles)) {
+    const filePath = path.join(assetsDir, filename);
+    if (!fs.existsSync(filePath)) {
+      console.log(`注意: 缺少${filename} - ${description}`);
+      console.log(`请在构建前提供 ${filePath}`);
+      
+      // 为了方便，可以自动生成简单的图标（如果需要）
+      // 这里可以调用另一个脚本生成简单图标
+    }
+  }
+
+  console.log('资产检查完成');
 }
 
-// 生成一个简单的图标占位符，如果icon.ico不存在
-const iconPath = path.join(assetsDir, 'icon.ico');
-if (!fs.existsSync(iconPath)) {
-  console.log('⚠️ 警告: 没有找到icon.ico，请放置一个适当的图标文件在assets目录中');
-  console.log('   你可以从 https://iconarchive.com/ 或其他资源下载合适的图标');
-}
-
-console.log('✅ 资源准备完毕');
-console.log('📝 请确保以下文件存在于assets目录:');
-console.log('   - icon.ico (Windows图标)');
-console.log('   - icon.png (Linux图标)');
+// 执行创建资产
+createAssets();

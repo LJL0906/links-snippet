@@ -1,43 +1,46 @@
-// å‡å°‘Chromiumé”™è¯¯æ—¥å¿—è¾“å‡º
+// ¼õÉÙChromium´íÎóÈÕÖ¾Êä³ö
 process.env.ELECTRON_ENABLE_LOGGING = false;
 process.env.ELECTRON_ENABLE_STACK_DUMPING = false;
 
-// æ ¸å¿ƒæ¨¡å—
-const { app, BrowserWindow, Menu, session } = require('electron');
+// ºËĞÄÄ£¿é
+const { app, BrowserWindow, Menu, session, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
-// å¯¼å…¥è‡ªå®šä¹‰æ¨¡å—
+// µ¼Èë×Ô¶¨ÒåÄ£¿é
 const { handleSquirrelEvent } = require('./squirrel-startup');
-const { getMainWindowConfig, getFallbackWindowConfig, getAppCommandLineSwitches } = require('./electron/config/window-config');
-const { getMenuTemplate } = require('./electron/config/menu-config');
-const { getIconPath } = require('./electron/utils/icon-utils');
-const { checkAutoLaunch, configureAutoLaunch } = require('./electron/utils/startup-utils');
-const { initDatabase, closeDatabase } = require('./electron/services/database-service');
-const { createTray } = require('./electron/services/tray-service');
-const { setupIPC } = require('./electron/services/ipc-service');
-const { registerGlobalShortcuts, unregisterAllShortcuts } = require('./electron/services/shortcut-service');
+// ĞŞ¸´Â·¾¶´íÎó - ÕıÈ·ÒıÓÃÅäÖÃºÍ¹¤¾ß
+const { getMainWindowConfig, getFallbackWindowConfig, getAppCommandLineSwitches } = require('./config/window-config');
+const { getMenuTemplate } = require('./config/menu-config');
+const { getIconPath } = require('./utils/icon-utils');
+const { checkAutoLaunch, configureAutoLaunch } = require('./utils/startup-utils');
+// ĞŞ¸´Â·¾¶´íÎó - ÕıÈ·ÒıÓÃ·şÎñÄ£¿é
+const { initDatabase, closeDatabase } = require('./services/database-service');
+const { createTray } = require('./services/tray-service');
+const { setupIPC } = require('./services/ipc-service');
+const { registerGlobalShortcuts, unregisterAllShortcuts } = require('./services/shortcut-service');
 
-// åœ¨åº”ç”¨å¯åŠ¨æ—©æœŸå¤„ç† Squirrel äº‹ä»¶
+// ÔÚÓ¦ÓÃÆô¶¯ÔçÆÚ´¦Àí Squirrel ÊÂ¼ş
 if (handleSquirrelEvent()) {
   app.quit();
 }
 
-// å…¨å±€å˜é‡
+// È«¾Ö±äÁ¿
 let mainWindow = null;
 let tray = null;
-const isQuitting = { value: false }; // ä½¿ç”¨å¯¹è±¡ä»¥ä¾¿å¼•ç”¨ä¼ é€’
+const isQuitting = { value: false }; // Ê¹ÓÃ¶ÔÏóÒÔ±ãÒıÓÃ´«µİ
 let isAutoLaunch = false;
-let shouldAutoHide = true; // æ§åˆ¶æ˜¯å¦è‡ªåŠ¨éšè—çª—å£
+let shouldAutoHide = true; // ¿ØÖÆÊÇ·ñ×Ô¶¯Òş²Ø´°¿Ú
 
-// ç¡®ä¿æ•°æ®ç›®å½•å­˜åœ¨
+// È·±£Êı¾İÄ¿Â¼´æÔÚ
 const userDataPath = app.getPath('userData');
 const dbPath = path.join(userDataPath, 'database.sqlite');
 
-// æ•°æ®åº“è¿æ¥
+// Êı¾İ¿âÁ¬½Ó
 let db = null;
 
 /**
- * åˆ›å»ºåº”ç”¨èœå•
+ * ´´½¨Ó¦ÓÃ²Ëµ¥
  */
 function createAppMenu() {
   const template = getMenuTemplate(() => app.getVersion());
@@ -46,49 +49,52 @@ function createAppMenu() {
 }
 
 /**
- * å¤„ç†SSLå’Œæ§åˆ¶å°é”™è¯¯
+ * ´¦ÀíSSLºÍ¿ØÖÆÌ¨´íÎó
  */
 function setupErrorHandlers() {
-  // è‡ªå®šä¹‰æ—¥å¿—è¾“å‡ºçº§åˆ«ï¼Œåªæ˜¾ç¤ºé‡è¦ä¿¡æ¯
+  // ×Ô¶¨ÒåÈÕÖ¾Êä³ö¼¶±ğ£¬Ö»ÏÔÊ¾ÖØÒªĞÅÏ¢
   console.originalError = console.error;
   console.error = function(...args) {
-    // è¿‡æ»¤SSLé”™è¯¯
+    // ¹ıÂËSSL´íÎó
     const errorStr = args.join(' ');
     if (errorStr.includes('ssl_client_socket_impl.cc') || 
         errorStr.includes('handshake failed')) {
-      return; // ä¸è¾“å‡ºè¿™äº›é”™è¯¯
+      return; // ²»Êä³öÕâĞ©´íÎó
     }
     console.originalError(...args);
   };
   
-  // æ·»åŠ å…¨å±€é”™è¯¯å¤„ç†
+  // Ìí¼ÓÈ«¾Ö´íÎó´¦Àí
   process.on('uncaughtException', (error) => {
-    console.log('æ•è·åˆ°æœªå¤„ç†çš„å¼‚å¸¸:', error.message);
-    // ä¸è¦ç»ˆæ­¢è¿›ç¨‹ï¼Œç»§ç»­è¿è¡Œ
+    console.log('²¶»ñµ½Î´´¦ÀíµÄÒì³£:', error.message);
+    // ²»ÒªÖÕÖ¹½ø³Ì£¬¼ÌĞøÔËĞĞ
   });
   
-  // ç¦ç”¨æ§åˆ¶å°è­¦å‘Š
+  // ½ûÓÃ¿ØÖÆÌ¨¾¯¸æ
   process.on('warning', (warning) => {
-    // å¿½ç•¥è­¦å‘Šï¼Œä¸æ‰“å°
+    // ºöÂÔ¾¯¸æ£¬²»´òÓ¡
   });
 }
 
 /**
- * åˆ›å»ºä¸»çª—å£
+ * ´´½¨Ö÷´°¿Ú
  */
 function createWindow() {
   try {
-    // æ£€æŸ¥æ˜¯å¦ä¸ºè‡ªå¯åŠ¨æ¨¡å¼
-    const isAutoLaunch = checkAutoLaunch(app); // ä½¿ç”¨æ­£ç¡®çš„å˜é‡å
+    // ¼ì²éÊÇ·ñÎª×ÔÆô¶¯Ä£Ê½
+    const isAutoLaunch = checkAutoLaunch(app); // Ê¹ÓÃÕıÈ·µÄ±äÁ¿Ãû
     
-    // è®¾ç½®å…è®¸ä¸å®‰å…¨è¯ä¹¦ï¼ˆä»…å¼€å‘ç¯å¢ƒä½¿ç”¨ï¼‰
+    // ÉèÖÃÔÊĞí²»°²È«Ö¤Êé£¨½ö¿ª·¢»·¾³Ê¹ÓÃ£©
     session.defaultSession.setCertificateVerifyProc((request, callback) => {
-      callback(0); // 0è¡¨ç¤ºæ¥å—è¯ä¹¦ï¼Œ-2è¡¨ç¤ºæ‹’ç»
+      callback(0); // 0±íÊ¾½ÓÊÜÖ¤Êé£¬-2±íÊ¾¾Ü¾ø
     });
     
-    // è·å–çª—å£é…ç½®
+    // »ñÈ¡´°¿ÚÅäÖÃ
     const iconPath = getIconPath(app);
+    // È·±£Ê¹ÓÃ¾ø¶ÔÂ·¾¶ÕÒµ½preload.js
     const preloadPath = path.join(__dirname, 'preload.js');
+    console.log('Ê¹ÓÃÔ¤¼ÓÔØ½Å±¾Â·¾¶:', preloadPath);
+    
     const windowConfig = {
       width: 1024,
       height: 768,
@@ -96,26 +102,28 @@ function createWindow() {
       transparent: false,
       icon: iconPath,
       webPreferences: {
-        preload: preloadPath,
+        preload: preloadPath, // Ê¹ÓÃÈ·¶¨µÄÂ·¾¶
         contextIsolation: true,
         nodeIntegration: false,
-        sandbox: false, // ç¦ç”¨æ²™ç®±ä»¥è§£å†³æŸäº› IPC é—®é¢˜
+        sandbox: false, // ½ûÓÃÉ³ÏäÒÔ½â¾öÄ³Ğ© IPC ÎÊÌâ
         enableRemoteModule: false,
         webSecurity: true,
-        allowRunningInsecureContent: false
+        allowRunningInsecureContent: false,
+        // ĞŞ¸ÄCSPÌí¼Óunsafe-eval
+        additionalArguments: [`--csp=default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:;`]
       },
-      show: !isAutoLaunch // ä½¿ç”¨æ­£ç¡®çš„å˜é‡åï¼Œè€Œä¸æ˜¯ autoLaunch
+      show: !isAutoLaunch // Ê¹ÓÃÕıÈ·µÄ±äÁ¿Ãû£¬¶ø²»ÊÇ autoLaunch
     };
     
-    // åˆ›å»ºçª—å£
+    // ´´½¨´°¿Ú
     mainWindow = new BrowserWindow(windowConfig);
     
-    // æ·»åŠ webRequestæ‹¦æˆªå™¨ï¼Œå¤„ç†ç½‘ç»œé”™è¯¯
+    // Ìí¼ÓwebRequestÀ¹½ØÆ÷£¬´¦ÀíÍøÂç´íÎó
     session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
       callback({cancel: false});
     });
     
-    // æ‹¦æˆªè¯ä¹¦é”™è¯¯
+    // À¹½ØÖ¤Êé´íÎó
     app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
       event.preventDefault();
       callback(true);
@@ -123,23 +131,23 @@ function createWindow() {
 
     mainWindow.loadFile('index.html');
   
-    // å¤„ç†æ‰€æœ‰æ–°çª—å£è¯·æ±‚ - ç¡®ä¿é“¾æ¥åœ¨ç³»ç»Ÿé»˜è®¤æµè§ˆå™¨æ‰“å¼€
+    // ´¦ÀíËùÓĞĞÂ´°¿ÚÇëÇó - È·±£Á´½ÓÔÚÏµÍ³Ä¬ÈÏä¯ÀÀÆ÷´ò¿ª
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
       require('electron').shell.openExternal(url).catch((err) => {
-        console.error('æ‰“å¼€å¤–éƒ¨é“¾æ¥å¤±è´¥:', err);
+        console.error('´ò¿ªÍâ²¿Á´½ÓÊ§°Ü:', err);
       });
       return { action: 'deny' };
     });
     
-    // æ·»åŠ çª—å£å¤±ç„¦äº‹ä»¶ç›‘å¬ï¼Œå½“ç‚¹å‡»åº”ç”¨å¤–éƒ¨æ—¶è‡ªåŠ¨éšè—åˆ°æ‰˜ç›˜
+    // Ìí¼Ó´°¿ÚÊ§½¹ÊÂ¼ş¼àÌı£¬µ±µã»÷Ó¦ÓÃÍâ²¿Ê±×Ô¶¯Òş²Øµ½ÍĞÅÌ
     mainWindow.on('blur', () => {
-      // åªæœ‰åœ¨shouldAutoHideä¸ºtrueæ—¶æ‰è‡ªåŠ¨éšè—çª—å£
+      // Ö»ÓĞÔÚshouldAutoHideÎªtrueÊ±²Å×Ô¶¯Òş²Ø´°¿Ú
       if (shouldAutoHide && mainWindow.isVisible() && !mainWindow.isMinimized()) {
         mainWindow.hide();
       }
     });
     
-    // ç›‘å¬çª—å£ä½ç½®å˜åŒ–ï¼Œå¦‚æœç§»å‡ºå±å¹•åŒºåŸŸåˆ™éšè—
+    // ¼àÌı´°¿ÚÎ»ÖÃ±ä»¯£¬Èç¹ûÒÆ³öÆÁÄ»ÇøÓòÔòÒş²Ø
     let hideWindowTimeout = null;
     mainWindow.on('move', () => {
       if (hideWindowTimeout) {
@@ -149,16 +157,16 @@ function createWindow() {
       hideWindowTimeout = setTimeout(() => {
         if (!mainWindow) return;
         
-        // è·å–çª—å£ä½ç½®å’Œå°ºå¯¸
+        // »ñÈ¡´°¿ÚÎ»ÖÃºÍ³ß´ç
         const bounds = mainWindow.getBounds();
         
-        // è·å–æ‰€æœ‰æ˜¾ç¤ºå™¨ä¿¡æ¯
+        // »ñÈ¡ËùÓĞÏÔÊ¾Æ÷ĞÅÏ¢
         const displays = require('electron').screen.getAllDisplays();
         
-        // æ£€æŸ¥çª—å£æ˜¯å¦åœ¨ä»»ä½•æ˜¾ç¤ºå™¨çš„å¯è§†åŒºåŸŸå†…
+        // ¼ì²é´°¿ÚÊÇ·ñÔÚÈÎºÎÏÔÊ¾Æ÷µÄ¿ÉÊÓÇøÓòÄÚ
         const isVisible = displays.some(display => {
           const { x, y, width, height } = display.workArea;
-          // æ£€æŸ¥çª—å£æ˜¯å¦è‡³å°‘éƒ¨åˆ†åœ¨æ˜¾ç¤ºåŒºåŸŸå†…
+          // ¼ì²é´°¿ÚÊÇ·ñÖÁÉÙ²¿·ÖÔÚÏÔÊ¾ÇøÓòÄÚ
           return (
             bounds.x < x + width &&
             bounds.x + bounds.width > x &&
@@ -167,14 +175,14 @@ function createWindow() {
           );
         });
         
-        // å¦‚æœçª—å£ä¸åœ¨ä»»ä½•æ˜¾ç¤ºå™¨çš„å¯è§†åŒºåŸŸå†…ï¼Œåˆ™éšè—
+        // Èç¹û´°¿Ú²»ÔÚÈÎºÎÏÔÊ¾Æ÷µÄ¿ÉÊÓÇøÓòÄÚ£¬ÔòÒş²Ø
         if (!isVisible && mainWindow.isVisible()) {
           mainWindow.hide();
         }
       }, 300);
     });
   
-    // çª—å£å…³é—­äº‹ä»¶ - æœ€å°åŒ–åˆ°æ‰˜ç›˜
+    // ´°¿Ú¹Ø±ÕÊÂ¼ş - ×îĞ¡»¯µ½ÍĞÅÌ
     mainWindow.on('close', (event) => {
       if (!isQuitting.value) {
         event.preventDefault();
@@ -186,19 +194,27 @@ function createWindow() {
       return true;
     });
 
-    // å¤„ç†çª—å£å®é™…è¢«é”€æ¯çš„äº‹ä»¶
+    // ´¦Àí´°¿ÚÊµ¼Ê±»Ïú»ÙµÄÊÂ¼ş
     mainWindow.on('closed', () => {
       mainWindow = null;
     });
+
+    // ÉèÖÃIPCÍ¨ĞÅ - È·±£ËùÓĞÄ£¿éÕıÈ·¼ÓÔØ
+    try {
+      setupIPC(db, app, mainWindow);
+      console.log('Ö÷IPC·şÎñÉèÖÃ³É¹¦');
+    } catch (error) {
+      console.error('ÉèÖÃIPC·şÎñÊ§°Ü:', error);
+    }
   } catch (error) {
-    console.error('åˆ›å»ºçª—å£å¤±è´¥:', error);
-    // ç¡®ä¿å³ä½¿å›¾æ ‡åŠ è½½å¤±è´¥ï¼Œçª—å£ä»èƒ½åˆ›å»ºæˆåŠŸ
+    console.error('´´½¨´°¿ÚÊ§°Ü:', error);
+    // È·±£¼´Ê¹Í¼±ê¼ÓÔØÊ§°Ü£¬´°¿ÚÈÔÄÜ´´½¨³É¹¦
     const fallbackConfig = {
       width: 1024,
       height: 768,
       frame: false,
       webPreferences: {
-        preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(app.getAppPath(), 'preload.js'), // Ö¸ÏòÏîÄ¿¸ùÄ¿Â¼
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: false
@@ -207,22 +223,22 @@ function createWindow() {
     mainWindow = new BrowserWindow(fallbackConfig);
     mainWindow.loadFile('index.html');
 
-    // åŒæ ·å¤„ç†å¤‡ç”¨çª—å£çš„å…³é—­äº‹ä»¶
+    // Í¬Ñù´¦Àí±¸ÓÃ´°¿ÚµÄ¹Ø±ÕÊÂ¼ş
     mainWindow.on('closed', () => {
       mainWindow = null;
     });
   }
 }
 
-// å…¬å¼€æ§åˆ¶è‡ªåŠ¨éšè—çš„æ–¹æ³•
+// ¹«¿ª¿ØÖÆ×Ô¶¯Òş²ØµÄ·½·¨
 global.disableAutoHide = () => { shouldAutoHide = false; };
 global.enableAutoHide = () => { shouldAutoHide = true; };
 
 /**
- * åº”ç”¨åˆå§‹åŒ–å’Œå¯åŠ¨
+ * Ó¦ÓÃ³õÊ¼»¯ºÍÆô¶¯
  */
 app.whenReady().then(() => {
-  // è®¾ç½®Chromiumå‘½ä»¤è¡Œå‚æ•°ï¼Œå‡å°‘SSLé”™è¯¯æ—¥å¿—
+  // ÉèÖÃChromiumÃüÁîĞĞ²ÎÊı£¬¼õÉÙSSL´íÎóÈÕÖ¾
   const cmdSwitches = getAppCommandLineSwitches();
   cmdSwitches.forEach(({ switch: name, value }) => {
     if (value === null) {
@@ -232,28 +248,25 @@ app.whenReady().then(() => {
     }
   });
   
-  // è®¾ç½®é”™è¯¯å¤„ç†
+  // ÉèÖÃ´íÎó´¦Àí
   setupErrorHandlers();
   
-  // åœ¨åº”ç”¨å‡†å¤‡å¥½æ—¶æ£€æŸ¥æ˜¯å¦æ˜¯è‡ªå¯åŠ¨
+  // ÔÚÓ¦ÓÃ×¼±¸ºÃÊ±¼ì²éÊÇ·ñÊÇ×ÔÆô¶¯
   isAutoLaunch = checkAutoLaunch(app);
   
-  // åˆå§‹åŒ–æ•°æ®åº“
+  // ³õÊ¼»¯Êı¾İ¿â
   db = initDatabase(dbPath);
   
-  // åˆ›å»ºåº”ç”¨èœå•ã€çª—å£å’Œæ‰˜ç›˜
+  // ´´½¨Ó¦ÓÃ²Ëµ¥¡¢´°¿ÚºÍÍĞÅÌ
   createAppMenu();
   createWindow();
   
-  // è®¾ç½®IPCé€šä¿¡
-  setupIPC(db, app, mainWindow);
-  
   tray = createTray(getIconPath(app), mainWindow, app, isQuitting);
   
-  // æ³¨å†Œå…¨å±€å¿«æ·é”®
+  // ×¢²áÈ«¾Ö¿ì½İ¼ü
   registerGlobalShortcuts(mainWindow);
 
-  // è®¾ç½®å¼€æœºè‡ªå¯åŠ¨
+  // ÉèÖÃ¿ª»ú×ÔÆô¶¯
   configureAutoLaunch(app, true);
 
   app.on('activate', () => {
@@ -262,42 +275,55 @@ app.whenReady().then(() => {
     }
   });
 
-  // é‡è¦ï¼šç›‘å¬mainWindowå˜åŒ–ä»¥æ›´æ–°IPCæœåŠ¡
+  // ÖØÒª£º¼àÌımainWindow±ä»¯ÒÔ¸üĞÂIPC·şÎñ
   app.on('browser-window-created', (_, window) => {
-    // å¦‚æœä¸»çª—å£è¢«é‡æ–°åˆ›å»ºï¼Œæ›´æ–°IPCå¼•ç”¨
+    // Èç¹ûÖ÷´°¿Ú±»ÖØĞÂ´´½¨£¬¸üĞÂIPCÒıÓÃ
     if (!mainWindow) {
       mainWindow = window;
       setupIPC(db, app, mainWindow);
     }
   });
   
-  // ä¿®å¤ï¼šç¡®ä¿åœ¨çª—å£åˆ›å»ºæ—¶æ›´æ–°IPCå¼•ç”¨
+  // ĞŞ¸´£ºÈ·±£ÔÚ´°¿Ú´´½¨Ê±¸üĞÂIPCÒıÓÃ
   app.on('browser-window-created', (_, window) => {
-    console.log('æ£€æµ‹åˆ°çª—å£åˆ›å»ºï¼Œæ›´æ–°IPCå¼•ç”¨');
-    // å¦‚æœä¸»çª—å£è¢«é‡æ–°åˆ›å»ºï¼Œæ›´æ–°IPCå¼•ç”¨
+    console.log('¼ì²âµ½´°¿Ú´´½¨£¬¸üĞÂIPCÒıÓÃ');
+    // Èç¹ûÖ÷´°¿Ú±»ÖØĞÂ´´½¨£¬¸üĞÂIPCÒıÓÃ
     if (!mainWindow || mainWindow.isDestroyed()) {
       mainWindow = window;
       setupIPC(db, app, mainWindow);
     }
   });
+
+  // É¾³ıÑÓ³Ù×¢²á£¬¸ÄÎª´òÓ¡ÈÕÖ¾ÒÔ±ãÈ·ÈÏIPCÊÇ·ñÒÑ×¢²á
+  setTimeout(() => {
+    const ipcMain = require('electron').ipcMain;
+    console.log('¼ì²éIPC´¦Àí³ÌĞòÊÇ·ñÒÑ×¢²á:');
+    if (ipcMain && ipcMain.eventNames) {
+      console.log('ÒÑ×¢²áµÄIPC´¦Àí³ÌĞò:', ipcMain.eventNames());
+    } else {
+      console.log('ÎŞ·¨»ñÈ¡ÒÑ×¢²áµÄIPC´¦Àí³ÌĞò');
+    }
+  }, 2000);
+
+  // ÒÆ³ı±¸·İÏà¹ØµÄIPC´¦Àí³ÌĞò×¢²á
 });
 
 /**
- * åº”ç”¨é€€å‡ºå’Œæ¸…ç†
+ * Ó¦ÓÃÍË³öºÍÇåÀí
  */
-// åº”ç”¨å‡†å¤‡é€€å‡ºæ—¶æ¸…ç†
+// Ó¦ÓÃ×¼±¸ÍË³öÊ±ÇåÀí
 app.on('before-quit', () => {
   isQuitting.value = true;
 });
 
 app.on('will-quit', () => {
-  // æ³¨é”€æ‰€æœ‰å¿«æ·é”®
+  // ×¢ÏúËùÓĞ¿ì½İ¼ü
   unregisterAllShortcuts();
 });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    // å…³é—­æ•°æ®åº“è¿æ¥
+    // ¹Ø±ÕÊı¾İ¿âÁ¬½Ó
     closeDatabase(db);
     app.quit();
   }
